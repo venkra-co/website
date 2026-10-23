@@ -12,7 +12,7 @@ const tag = (name: string, value: string | number) => `<g:${name}>${escape(Strin
 
 const items = (product: Product, origin: URL) => {
 	const category = categoryOf(product);
-	const sizes = Object.entries(product.stock);
+	const { sizes, colors } = product;
 	const shared = [
 		tag('title', `${productTitle(product)} Venkra`),
 		tag('description', productDescription(product)),
@@ -27,18 +27,13 @@ const items = (product: Product, origin: URL) => {
 		tag('product_type', category.name),
 		tag('gender', 'unisex'),
 		tag('age_group', 'adult'),
+		// Google takes up to three colours, separated by slashes.
+		...(colors.length ? [tag('color', colors.slice(0, 3).map((color) => color.name).join('/'))] : []),
+		tag('availability', 'in_stock'),
 	];
 	// One-size products (caps) are a single item with no size.
-	if (sizes.length === 1) {
-		return [[tag('id', product.id), tag('availability', sizes[0][1] > 0 ? 'in_stock' : 'out_of_stock'), ...shared]];
-	}
-	return sizes.map(([size, units]) => [
-		tag('id', `${product.id}-${size.toLowerCase()}`),
-		tag('item_group_id', product.id),
-		tag('size', size),
-		tag('availability', units > 0 ? 'in_stock' : 'out_of_stock'),
-		...shared,
-	]);
+	if (sizes.length <= 1) return [[tag('id', product.id), ...shared]];
+	return sizes.map((size) => [tag('id', `${product.id}-${size.toLowerCase()}`), tag('item_group_id', product.id), tag('size', size), ...shared]);
 };
 
 export const GET: APIRoute = ({ site: origin }) => {

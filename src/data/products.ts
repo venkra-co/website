@@ -11,8 +11,10 @@ export interface Product {
 	details: string[];
 	/** Photos, cover first: full URLs, or /photos/ paths for those from the CMS. */
 	images: string[];
-	/** Units in stock per size, in the order sizes are shown. */
-	stock: Record<string, number>;
+	/** Sizes it can be ordered in, in the order they're shown. */
+	sizes: string[];
+	/** Its colours, as named swatches. */
+	colors: { name: string; hex: string }[];
 }
 
 /** Every published product, in catalogue order. */

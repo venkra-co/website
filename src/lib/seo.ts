@@ -10,22 +10,14 @@ export const categoryOf = (product: Product) => categories.find((category) => ca
 
 export const productPath = (product: Product) => `/catalogo/${product.category}/${product.id}`;
 
-/** Sizes with units left, in the order they're shown. */
-export const sizesInStock = (product: Product) =>
-	Object.entries(product.stock)
-		.filter(([, units]) => units > 0)
-		.map(([size]) => size);
-
 /** "Black Smoke, camiseta oversized" */
 export const productTitle = (product: Product) => `${product.name}, ${categoryOf(product).garment}`;
 
 /** One or two sentences: what it is, what it's made of, price and sizes. */
 export const productDescription = (product: Product) => {
-	const sizes = sizesInStock(product);
-	// One-size products (caps) only say when they're sold out.
-	const sized = Object.keys(product.stock).length > 1;
-	const stock = sizes.length === 0 ? 'Agotada.' : sized ? `${sizes.length > 1 ? 'Tallas' : 'Talla'} ${sizes.join(', ')}.` : '';
-	return `${productTitle(product)} de Venkra. ${product.details.join('. ')}. ${formatPrice(product.price)}. ${stock}`.trim();
+	// One-size products (caps) don't list their size.
+	const sizes = product.sizes.length > 1 ? `Tallas ${product.sizes.join(', ')}.` : '';
+	return `${productTitle(product)} de Venkra. ${product.details.join('. ')}. ${formatPrice(product.price)}. ${sizes}`.trim();
 };
 
 export const categoryDescription = (category: Category) =>
@@ -79,7 +71,7 @@ export const productSchema = (product: Product, origin: URL) =>
 			url: new URL(productPath(product), origin).href,
 			price: product.price,
 			priceCurrency: 'COP',
-			availability: `https://schema.org/${sizesInStock(product).length > 0 ? 'InStock' : 'OutOfStock'}`,
+			availability: 'https://schema.org/InStock',
 			itemCondition: 'https://schema.org/NewCondition',
 			seller: { '@id': new URL('/#organization', origin).href },
 		},
