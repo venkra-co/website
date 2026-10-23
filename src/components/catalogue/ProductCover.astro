@@ -11,10 +11,10 @@ interface Props {
 
 const { product, category } = Astro.props;
 
-const sizes = Object.entries(product.stock);
+const { sizes, colors } = product;
 // One-size products skip the size picker.
 const picker = sizes.length > 1;
-const size = sizes.find(([, units]) => units > 0)?.[0];
+const size = sizes[0];
 ---
 
 <section class="cover" data-cover>
@@ -27,6 +27,16 @@ const size = sizes.find(([, units]) => units > 0)?.[0];
 			<ul class="details">
 				{product.details.map((detail) => <li>{detail}</li>)}
 			</ul>
+			{colors.length > 0 && (
+				<ul class="colors" aria-label="Colores">
+					{colors.map((color) => (
+						<li>
+							<span class="swatch" style={`background: ${color.hex}`}></span>
+							{color.name}
+						</li>
+					))}
+				</ul>
+			)}
 		</div>
 		<div class="order">
 			{product.images.length > 1 && (
@@ -41,28 +51,22 @@ const size = sizes.find(([, units]) => units > 0)?.[0];
 			{picker && (
 				<fieldset class="sizes">
 					<legend class="eyebrow">Talla</legend>
-					{sizes.map(([label, units]) => (
+					{sizes.map((label) => (
 						<button
 							class="stamp"
 							type="button"
 							data-size={label}
 							data-href={orderLink(product, label)}
 							aria-pressed={label === size ? 'true' : 'false'}
-							disabled={units === 0}
-							title={units === 0 ? 'Agotada' : undefined}
 						>
 							{label}
 						</button>
 					))}
 				</fieldset>
 			)}
-			{size ? (
-				<a class="stamp cta" href={orderLink(product, picker ? size : undefined)} target="_blank" rel="noopener" data-cta>
-					{picker ? <span>Pedir talla <span data-label>{size}</span> por WhatsApp</span> : 'Pedir por WhatsApp'}
-				</a>
-			) : (
-				<p class="stamp cta" aria-disabled="true">Agotada</p>
-			)}
+			<a class="stamp cta" href={orderLink(product, picker ? size : undefined)} target="_blank" rel="noopener" data-cta>
+				{picker ? <span>Pedir talla <span data-label>{size}</span> por WhatsApp</span> : 'Pedir por WhatsApp'}
+			</a>
 		</div>
 	</div>
 </section>
@@ -135,6 +139,27 @@ const size = sizes.find(([, units]) => units > 0)?.[0];
 		line-height: 1.6;
 	}
 
+	.colors {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.colors li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.swatch {
+		width: 1.1rem;
+		height: 1.1rem;
+		border: 1px solid rgb(0 0 0 / 0.35);
+	}
+
 	.order {
 		display: grid;
 		gap: 1rem;
@@ -193,20 +218,9 @@ const size = sizes.find(([, units]) => units > 0)?.[0];
 		color: var(--color-accent);
 	}
 
-	.sizes .stamp:disabled {
-		opacity: 0.35;
-		text-decoration: line-through;
-		pointer-events: none;
-	}
-
 	.cta {
 		--stamp-size: 3.5rem;
 		margin: 0;
-	}
-
-	[aria-disabled='true'] {
-		opacity: 0.5;
-		pointer-events: none;
 	}
 
 	@media (max-width: 760px) {
