@@ -55,20 +55,24 @@ export const [catalogue, pages, sections, settings] = await Promise.all([
 /**
  * Photos uploaded to the CMS are behind Access, so the build saves a WebP
  * copy of each under /photos/ (src/pages/photos) and the site links to that.
- * Maps each photo's <product>/<product>-<n> path to its CMS original.
+ * Maps each photo's path, its R2 key without the extension (such as
+ * products/<product>/<product>-<n> or categories/<category>), to its CMS
+ * original.
  */
 export const photos = new Map<string, string>();
 const cms = new URL(url).origin;
-for (const product of catalogue.flatMap((category) => category.products)) {
-	product.images = product.images.map((image) => {
-		const { origin, pathname } = new URL(image);
-		if (origin !== cms) return image;
-		// A CMS photo the site can't copy would show as a broken image.
-		const path = /^\/api\/photos\/products\/(.+)\.\w+$/.exec(pathname)?.[1];
-		if (!path) throw new Error(`Unexpected CMS photo url: ${image}`);
-		photos.set(path, image);
-		return `/photos/${path}.webp`;
-	});
+/** The site's copy of an image, if it is a CMS photo. */
+const copy = (image: string) => {
+	if (!image || new URL(image).origin !== cms) return image;
+	// A CMS photo the site can't copy would show as a broken image.
+	const path = /^\/api\/photos\/(.+)\.\w+$/.exec(new URL(image).pathname)?.[1];
+	if (!path) throw new Error(`Unexpected CMS photo url: ${image}`);
+	photos.set(path, image);
+	return `/photos/${path}.webp`;
+};
+for (const category of catalogue) {
+	category.image = copy(category.image);
+	for (const product of category.products) product.images = product.images.map(copy);
 }
 
 /** The CMS original of a /photos/ copy, if the image is one. */

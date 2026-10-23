@@ -3,7 +3,8 @@ import sharp from 'sharp';
 import { get, photos } from '../../data/cms';
 
 // The WebP copy of each photo uploaded to the CMS, made at build time and
-// named like the original: /photos/<product>/<product>-<n>.webp.
+// named like the original's R2 key: /photos/products/<product>/<product>-<n>.webp
+// or /photos/categories/<category>.webp.
 export const getStaticPaths = (() =>
 	[...photos].map(([path, original]) => ({ params: { path }, props: { original } }))) satisfies GetStaticPaths;
 
