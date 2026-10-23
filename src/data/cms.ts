@@ -33,10 +33,11 @@ export interface Page {
 	body: string | null;
 }
 
-/** Categories and their published products, without derived fields; and the pages. */
-export const [catalogue, pages] = await Promise.all([
+/** Categories and their published products, without derived fields; the pages; and the site-wide settings by key, such as color_bg. */
+export const [catalogue, pages, settings] = await Promise.all([
 	read<Omit<Category, 'fromPrice'>[]>('/api/catalog'),
 	read<Page[]>('/api/pages'),
+	read<Record<string, string>>('/api/settings'),
 ]);
 
 /**

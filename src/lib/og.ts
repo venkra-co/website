@@ -5,12 +5,13 @@ import satori from 'satori';
 import sharp from 'sharp';
 import eagleSvg from '../assets/eagle.svg?raw';
 import logoSvg from '../assets/logo-full.svg?raw';
-import { get, originalOf } from '../data/cms';
+import { get, originalOf, settings } from '../data/cms';
 import { site } from '../data/site';
 
 export const CARD = { width: 1200, height: 630 } as const;
 
-const CREAM = '#efe3c8';
+// The brand colours from the CMS; satori can't read the site's CSS variables.
+const { color_bg: BG, color_fg: FG, color_accent: ACCENT, color_muted: MUTED } = settings;
 const POSTER = 'public/hero/poster.webp';
 
 /** URL of the card for a page, by its slug under /og. */
@@ -78,13 +79,13 @@ const render = async (node: Node) => {
 export const homeCard = async () =>
 	render(
 		box(
-			{ ...CARD, position: 'relative', background: '#000', fontFamily: 'Roboto Condensed' },
+			{ ...CARD, position: 'relative', background: BG, fontFamily: 'Roboto Condensed' },
 			img(await photoUri(POSTER, CARD.width, CARD.height), { position: 'absolute', ...CARD }),
 			box({ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }),
 			box(
 				{ position: 'absolute', inset: 0, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
-				img(svgUri(logoSvg, '#fff'), { width: 640, height: 250 }),
-				box({ ...caps(24, 10, CREAM), marginTop: 40 }, site.stamp),
+				img(svgUri(logoSvg, FG), { width: 640, height: 250 }),
+				box({ ...caps(24, 10, ACCENT), marginTop: 40 }, site.stamp),
 			),
 		),
 	);
@@ -106,17 +107,17 @@ const bigName = (name: string, color: string) =>
 export const productCard = ({ eyebrow, name, price, photo }: CardText) =>
 	split(
 		photo,
-		CREAM,
+		ACCENT,
 		box(
 			{ flexDirection: 'column' },
-			box(caps(24, 8, '#000'), eyebrow),
-			bigName(name, '#000'),
-			box({ marginTop: 28, fontSize: 44, fontWeight: 700 }, price),
+			box(caps(24, 8, BG), eyebrow),
+			bigName(name, BG),
+			box({ marginTop: 28, fontSize: 44, fontWeight: 700, color: BG }, price),
 		),
 		box(
 			{ alignItems: 'center', justifyContent: 'space-between' },
-			img(svgUri(eagleSvg, '#000'), { width: 110, height: 58 }),
-			box(caps(22, 6, '#000'), 'Pide por WhatsApp'),
+			img(svgUri(eagleSvg, BG), { width: 110, height: 58 }),
+			box(caps(22, 6, BG), 'Pide por WhatsApp'),
 		),
 	);
 
@@ -124,12 +125,12 @@ export const productCard = ({ eyebrow, name, price, photo }: CardText) =>
 export const categoryCard = ({ eyebrow, name, price, photo }: CardText) =>
 	split(
 		photo,
-		'#000',
-		img(svgUri(eagleSvg, '#fff'), { width: 150, height: 79 }),
+		BG,
+		img(svgUri(eagleSvg, FG), { width: 150, height: 79 }),
 		box(
 			{ flexDirection: 'column' },
-			bigName(name, '#fff'),
-			box({ ...caps(26, 6, CREAM), marginTop: 24 }, `${eyebrow} · ${price}`),
+			bigName(name, FG),
+			box({ ...caps(26, 6, ACCENT), marginTop: 24 }, `${eyebrow} · ${price}`),
 		),
-		box(caps(20, 5, '#9a9a9a'), site.tagline),
+		box(caps(20, 5, MUTED), site.tagline),
 	);

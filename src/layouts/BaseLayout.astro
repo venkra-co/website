@@ -5,6 +5,7 @@ import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import { CARD, cardUrl } from '../lib/og';
 import { site } from '../data/site';
+import { settings } from '../data/cms';
 
 interface Props {
 	title?: string;
@@ -24,6 +25,11 @@ const {
 } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const imageUrl = new URL(image, Astro.site);
+// The brand colours from the CMS (color_bg becomes --brand-bg); global.css builds the rest from them.
+const brand = Object.entries(settings)
+	.filter(([key]) => key.startsWith('color_'))
+	.map(([key, value]) => `--brand-${key.slice('color_'.length)}: ${value};`)
+	.join(' ');
 ---
 
 <html lang="es-CO">
@@ -39,7 +45,7 @@ const imageUrl = new URL(image, Astro.site);
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="manifest" href="/site.webmanifest" />
-		<meta name="theme-color" content="#000" />
+		<meta name="theme-color" content={settings.color_bg} />
 		<meta name="color-scheme" content="dark" />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Venkra" />
@@ -57,6 +63,7 @@ const imageUrl = new URL(image, Astro.site);
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<link rel="canonical" href={url} />
+		<style is:inline set:html={`:root { ${brand} }`} />
 	</head>
 	<body data-hero-logo={heroLogo}>
 		<Header />
