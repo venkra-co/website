@@ -1,14 +1,13 @@
-/* Design tokens from brand-personality.md, plus the page defaults. */
+/* Design tokens from brand-personality.md, plus the page defaults. The four
+   brand colours (--brand-bg, -fg, -accent, -muted) are set in the CMS and
+   written into the page by BaseLayout; the other colours derive from them. */
 :root {
 	color-scheme: dark;
 
-	--color-bg: #000;
-	--color-fg: #fff;
-	--color-accent: #efe3c8;
-	--color-muted: #9a9a9a;
-	--color-surface: #111;
-	--color-line: rgb(255 255 255 / 0.15);
-	--color-line-strong: rgb(255 255 255 / 0.35);
+	--color-bg: var(--brand-bg);
+	--color-fg: var(--brand-fg);
+	--color-accent: var(--brand-accent);
+	--color-muted: var(--brand-muted);
 
 	--font-display: 'Avenir Next Condensed', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif;
 	--font-body: system-ui, sans-serif;
@@ -128,26 +127,31 @@ body {
 	height: 1rem;
 }
 
-/* A cream panel: its stamps are drawn in black, the CTA turns black with cream
-   text, and focus rings turn black so they don't vanish on the cream. */
-.cream {
-	--color-line-strong: rgb(0 0 0 / 0.4);
-	background: var(--color-accent);
-	color: var(--color-bg);
-}
-
-.cream .stamp:not(:hover) {
-	color: var(--color-bg);
-}
-
-.cream .stamp.cta:not(:hover) {
-	border-color: var(--color-bg);
-	background: var(--color-bg);
+/* The CTA's hover empties it, so it still shows on a panel of its own colour. */
+.stamp.cta:hover {
+	background: transparent;
 	color: var(--color-accent);
 }
 
-.cream :focus-visible {
-	outline-color: var(--color-bg);
+/* Declared on both, so they follow the swapped colours inside a cream panel. */
+:root,
+.cream {
+	--color-surface: color-mix(in srgb, var(--color-fg) 7%, var(--color-bg));
+	--color-line: color-mix(in srgb, var(--color-fg) 15%, transparent);
+	--color-line-strong: color-mix(in srgb, var(--color-fg) 35%, transparent);
+}
+
+/* A cream panel swaps the colours: the accent becomes the background, and the
+   page's background draws the text, the stamps and the focus rings. Its lines
+   are a little stronger, since dark on cream shows less. */
+.cream {
+	--color-bg: var(--brand-accent);
+	--color-fg: var(--brand-bg);
+	--color-accent: var(--brand-bg);
+	--color-muted: color-mix(in srgb, var(--brand-bg) 62%, var(--brand-accent));
+	--color-line-strong: color-mix(in srgb, var(--color-fg) 45%, transparent);
+	background: var(--color-bg);
+	color: var(--color-fg);
 }
 
 /* A photo tile that links somewhere, shared by the category and product walls. */
