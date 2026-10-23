@@ -25,10 +25,14 @@ const {
 } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const imageUrl = new URL(image, Astro.site);
-// The brand colours from the CMS (color_bg becomes --brand-bg); global.css builds the rest from them.
-const brand = Object.entries(settings)
+// The two palettes from the CMS: color_bg becomes --dark-bg and color_light_bg
+// --light-bg. global.css picks one by the theme and builds the rest from it.
+const palettes = Object.entries(settings)
 	.filter(([key]) => key.startsWith('color_'))
-	.map(([key, value]) => `--brand-${key.slice('color_'.length)}: ${value};`)
+	.map(([key, value]) => {
+		const role = key.slice('color_'.length);
+		return role.startsWith('light_') ? `--light-${role.slice('light_'.length)}: ${value};` : `--dark-${role}: ${value};`;
+	})
 	.join(' ');
 ---
 
@@ -46,7 +50,7 @@ const brand = Object.entries(settings)
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="manifest" href="/site.webmanifest" />
 		<meta name="theme-color" content={settings.color_bg} />
-		<meta name="color-scheme" content="dark" />
+		<meta name="color-scheme" content="dark light" />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Venkra" />
 		<meta property="og:locale" content="es_CO" />
@@ -63,7 +67,23 @@ const brand = Object.entries(settings)
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<link rel="canonical" href={url} />
-		<style is:inline set:html={`:root { ${brand} }`} />
+		<style is:inline set:html={`:root { ${palettes} }`} />
+		<script is:inline>
+			// Light or dark: the visitor's pick from the header, else the system's.
+			// Runs before the first paint, and again after each client navigation,
+			// which resets <html>'s attributes.
+			(() => {
+				const apply = () => {
+					let pick;
+					try {
+						pick = localStorage.getItem('theme');
+					} catch {}
+					document.documentElement.dataset.theme = pick || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+				};
+				apply();
+				document.addEventListener('astro:after-swap', apply);
+			})();
+		</script>
 	</head>
 	<body data-hero-logo={heroLogo}>
 		<Header />

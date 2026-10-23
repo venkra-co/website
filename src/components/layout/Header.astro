@@ -30,6 +30,9 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 			<Eagle aria-hidden="true" />
 		</a>
 		<div class="actions">
+			<button class="stamp icon theme" style={flicker(links.length + 2)} type="button" aria-label="Cambiar entre modo claro y oscuro">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" /></svg>
+			</button>
 			{site.instagram && (
 				<a class="stamp icon" style={flicker(links.length)} href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
 					<Instagram aria-hidden="true" />
@@ -62,7 +65,8 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 	const header = document.querySelector<HTMLElement>('.site-header')!;
 	let logo: Element | null = null;
 
-	// Past this point the bar fades in and the tags flicker on their boxes.
+	// Past this point the bar fades in and the tags flicker on their boxes. With
+	// no hero under it, the bar is solid from the top.
 	const SOLID_AT = 60;
 
 	// The header's eagle flickers on as the hero logo's eagle slides under the
@@ -84,7 +88,7 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 	};
 	const update = () => {
 		queued = false;
-		set('solid', scrollY > SOLID_AT);
+		set('solid', !logo || scrollY > SOLID_AT);
 		set('eagle', !logo || scrollY > eagleUnder);
 	};
 
@@ -104,6 +108,15 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 	button.addEventListener('click', () => setOpen(menu.hidden));
 	menu.addEventListener('click', (event) => (event.target as Element).closest('a') && setOpen(false));
 	addEventListener('keydown', (event) => event.key === 'Escape' && setOpen(false));
+
+	// The visitor's pick of light or dark, kept for their next visits.
+	header.querySelector('.theme')!.addEventListener('click', () => {
+		const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+		document.documentElement.dataset.theme = theme;
+		try {
+			localStorage.setItem('theme', theme);
+		} catch {}
+	});
 
 	// A page names its big logo, like the hero's, in data-hero-logo on <body>.
 	document.addEventListener('astro:page-load', () => {
@@ -357,7 +370,7 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 		}
 
 		.nav,
-		.icon,
+		.icon:not(.theme),
 		.cta span {
 			display: none;
 		}

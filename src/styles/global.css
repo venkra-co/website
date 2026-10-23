@@ -1,8 +1,15 @@
-/* Design tokens from brand-personality.md, plus the page defaults. The four
-   brand colours (--brand-bg, -fg, -accent, -muted) are set in the CMS and
-   written into the page by BaseLayout; the other colours derive from them. */
+/* Design tokens from brand-personality.md, plus the page defaults. The CMS
+   sets a dark and a light palette (--dark-bg, -fg, -accent, -muted and the
+   same in --light-*), which BaseLayout writes into the page; data-theme on
+   <html> picks one as the brand colours, and the other colours derive from
+   them. */
 :root {
 	color-scheme: dark;
+
+	--brand-bg: var(--dark-bg);
+	--brand-fg: var(--dark-fg);
+	--brand-accent: var(--dark-accent);
+	--brand-muted: var(--dark-muted);
 
 	--color-bg: var(--brand-bg);
 	--color-fg: var(--brand-fg);
@@ -17,6 +24,27 @@
 	--page-max: 90rem;
 	--page-gutter: clamp(1rem, 4vw, 3rem);
 	--header-height: 4rem;
+}
+
+:root[data-theme='light'] {
+	color-scheme: light;
+
+	--brand-bg: var(--light-bg);
+	--brand-fg: var(--light-fg);
+	--brand-accent: var(--light-accent);
+	--brand-muted: var(--light-muted);
+}
+
+/* Over the hero's video, the header while it is see-through, and photo tiles,
+   the colours stay dark in either mode. */
+.hero,
+.site-header:not([data-solid='true']),
+.tile {
+	--color-bg: var(--dark-bg);
+	--color-fg: var(--dark-fg);
+	--color-accent: var(--dark-accent);
+	--color-muted: var(--dark-muted);
+	color: var(--color-fg);
 }
 
 body {
@@ -133,8 +161,11 @@ body {
 	color: var(--color-accent);
 }
 
-/* Declared on both, so they follow the swapped colours inside a cream panel. */
+/* Declared wherever the colours change, so they follow them. */
 :root,
+.hero,
+.site-header:not([data-solid='true']),
+.tile,
 .cream {
 	--color-surface: color-mix(in srgb, var(--color-fg) 7%, var(--color-bg));
 	--color-line: color-mix(in srgb, var(--color-fg) 15%, transparent);
