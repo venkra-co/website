@@ -1,22 +1,20 @@
 ---
 import { padIndex } from '../../lib/format';
 
-// Materials and finishes, from the product descriptions in the old site's spreadsheet.
-const details = [
-	{ title: 'Algodón premium', text: 'Camisetas de 200 g con lavado vintage y corte amplio.' },
-	{ title: 'Heavyweight', text: 'Oversize en algodón peinado de 220 a 260 g, con caída firme.' },
-	{ title: 'Vinilo 3D', text: 'El logo en vinilo de alta densidad, en relieve que se siente al tacto.' },
-	{ title: 'Trucker', text: 'Gorras con frente en foam, malla transpirable y hebilla metálica.' },
-];
+interface Props {
+	content: { title: string; eyebrow: string; details: { title: string; text: string }[] };
+}
+
+const { content } = Astro.props;
 ---
 
 <section id="detalles" class="section" aria-labelledby="craft-title">
 	<header class="section-head">
-		<h2 id="craft-title" class="section-title">Detalles</h2>
-		<p class="eyebrow">Special goods</p>
+		<h2 id="craft-title" class="section-title">{content.title}</h2>
+		<p class="eyebrow">{content.eyebrow}</p>
 	</header>
 	<ul class="details">
-		{details.map((detail, i) => (
+		{content.details.map((detail, i) => (
 			<li>
 				<span class="num">{padIndex(i + 1)}</span>
 				<h3>{detail.title}</h3>

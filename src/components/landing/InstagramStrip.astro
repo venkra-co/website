@@ -1,27 +1,24 @@
 ---
 import { site } from '../../data/site';
 
-// Brand shots from the R2 image bucket, each linking to its Instagram post.
-const image = (file: string) => `https://images.venkra.maxfika.com/${file}.webp`;
-const posts = [
-	{ src: image('01-saxophonist'), alt: 'Saxofonista con ropa Venkra', href: 'https://www.instagram.com/reel/Cg7z0oLKxjA/' },
-	{ src: image('02-venkra-seated-models'), alt: 'Modelos sentados con ropa Venkra', href: 'https://www.instagram.com/p/CndWUNZtq34/' },
-	{ src: image('04-venkra-event'), alt: 'Evento Venkra', href: 'https://www.instagram.com/p/Cg7pEUtNOQw/' },
-	{ src: image('03-venkra-cap-and-shirt'), alt: 'Gorra y camiseta Venkra', href: 'https://www.instagram.com/p/CjtLOMDuDZe/' },
-	{ src: image('05-venkra-models'), alt: 'Modelos con ropa Venkra', href: 'https://www.instagram.com/p/Cg8EEdeLDHY/' },
-];
-------
+interface Props {
+	/** Brand shots, each linking to its Instagram post. */
+	content: { title: string; button: string; photos: { image: string; alt: string; link: string }[] };
+}
+
+const { content } = Astro.props;
+---
 
 <section id="instagram" class="section" aria-labelledby="instagram-title">
 	<header class="section-head">
-		<h2 id="instagram-title" class="section-title">@venkra.co</h2>
-		<a class="stamp" href={site.instagram} target="_blank" rel="noopener">Síguenos en Instagram</a>
+		<h2 id="instagram-title" class="section-title">{content.title}</h2>
+		{site.instagram && <a class="stamp" href={site.instagram} target="_blank" rel="noopener">{content.button}</a>}
 	</header>
 	<ul class="photos">
-		{posts.map((post) => (
+		{content.photos.map((photo) => (
 			<li>
-				<a href={post.href} target="_blank" rel="noopener">
-					<img src={post.src} alt={post.alt} loading="lazy" decoding="async" />
+				<a href={photo.link} target="_blank" rel="noopener">
+					<img src={photo.image} alt={photo.alt} loading="lazy" decoding="async" />
 				</a>
 			</li>
 		))}

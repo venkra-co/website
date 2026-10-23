@@ -19,8 +19,3 @@ export interface Product {
 
 /** Every published product, in catalogue order. */
 export const products: readonly Product[] = catalogue.flatMap((category) => category.products);
-
-/** Four standout pieces for the landing row, minus any no longer published. */
-export const featured = ['black-smoke', 'yellow-shadow', 'trucker-snake', 'white-smoke'].flatMap((id) =>
-	products.filter((product) => product.id === id),
-);

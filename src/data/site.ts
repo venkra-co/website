@@ -1,13 +1,16 @@
-// Contact and social links, from the old site's socialLinks.js, and the site's
-// own pages and copy, shared by the header and the footer.
+import { settings } from './cms';
+
+// The shop's contacts, set in the CMS's Configuración (an empty one is not
+// shown), and the site's own pages and copy, shared by the header and the footer.
 const tagline = 'Faith is necessary for victory';
 
 export const site = {
-	whatsapp: 'https://wa.me/message/QOKZX3EJBF7UD1',
-	instagram: 'https://www.instagram.com/venkra.co/',
-	facebook: 'https://www.facebook.com/Venkra.co/',
-	messenger: 'https://m.me/Venkra.co',
-	phone: '+57 304 6050080',
+	whatsapp: settings.whatsapp,
+	phone: settings.phone,
+	email: settings.email,
+	instagram: settings.instagram,
+	facebook: settings.facebook,
+	messenger: settings.messenger,
 	tagline,
 	description: `Camisetas oversized y gorras hechas a mano. ${tagline}.`,
 	/** The stamp printed on the shirts. */

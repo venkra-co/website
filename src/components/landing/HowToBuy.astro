@@ -1,20 +1,20 @@
 ---
 import { padIndex } from '../../lib/format';
 
-const steps = [
-	{ title: 'Elige', text: 'Explora el catálogo y escoge tu prenda.' },
-	{ title: 'Escríbenos', text: 'Mándanos por WhatsApp la prenda y tu talla. Te confirmamos disponibilidad, pago y envío.' },
-	{ title: 'Recíbela', text: 'Coordinamos la entrega contigo.' },
-];
+interface Props {
+	content: { title: string; eyebrow: string; steps: { title: string; text: string }[] };
+}
+
+const { content } = Astro.props;
 ---
 
 <section id="como-comprar" class="section" aria-labelledby="buy-title">
 	<header class="section-head">
-		<h2 id="buy-title" class="section-title">Cómo comprar</h2>
-		<p class="eyebrow">Tres pasos</p>
+		<h2 id="buy-title" class="section-title">{content.title}</h2>
+		<p class="eyebrow">{content.eyebrow}</p>
 	</header>
 	<ol class="steps">
-		{steps.map((step, i) => (
+		{content.steps.map((step, i) => (
 			<li>
 				<span class="step-num">{padIndex(i + 1)}</span>
 				<h3>{step.title}</h3>

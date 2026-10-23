@@ -33,10 +33,22 @@ export interface Page {
 	body: string | null;
 }
 
-/** Categories and their published products, without derived fields; the pages; and the site-wide settings by key, such as color_bg. */
-export const [catalogue, pages, settings] = await Promise.all([
+/** A home page section; content's shape is the section's own, as the CMS stores it. */
+export interface Section {
+	id: string;
+	visible: boolean;
+	content: Record<string, any>;
+}
+
+/**
+ * Categories and their published products, without derived fields; the pages;
+ * the home page's sections; and the site-wide settings by key, such as
+ * color_bg and the shop's contacts.
+ */
+export const [catalogue, pages, sections, settings] = await Promise.all([
 	read<Omit<Category, 'fromPrice'>[]>('/api/catalog'),
 	read<Page[]>('/api/pages'),
+	read<Section[]>('/api/sections'),
 	read<Record<string, string>>('/api/settings'),
 ]);
 

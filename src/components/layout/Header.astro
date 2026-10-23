@@ -10,7 +10,7 @@ const menuLinks = [
 	...links,
 	{ label: 'Instagram', href: site.instagram, external: true },
 	{ label: 'Escríbenos', href: site.whatsapp, external: true, accent: true },
-];
+].filter((link) => link.href);
 // Each tag's box flickers on after its own delay, in a scattered order like the logo's letters.
 const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 ---
@@ -30,9 +30,11 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 			<Eagle aria-hidden="true" />
 		</a>
 		<div class="actions">
-			<a class="stamp icon" style={flicker(links.length)} href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
-				<Instagram aria-hidden="true" />
-			</a>
+			{site.instagram && (
+				<a class="stamp icon" style={flicker(links.length)} href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
+					<Instagram aria-hidden="true" />
+				</a>
+			)}
 			<a class="stamp cta" style={flicker(links.length + 1)} href={site.whatsapp} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
 				<WhatsApp aria-hidden="true" />
 				<span>Escríbenos</span>

@@ -1,10 +1,18 @@
+---
+interface Props {
+	content: { quote: string; text: string; button: string };
+}
+
+const { content } = Astro.props;
+---
+
 <section id="manifiesto" class="section manifesto" aria-label="Manifiesto">
 	<blockquote>
-		<p class="quote">Incluso cuando el viento está en su contra, sabe que es el momento perfecto para abrir sus alas.</p>
+		<p class="quote">{content.quote}</p>
 	</blockquote>
 	<div class="aside">
-		<p>VENKRA vive los planes que se cruzan en su camino y disfruta de los detalles que se esconden en cada rincón de la ciudad.</p>
-		<a class="stamp" href="/nosotros">Conoce la marca</a>
+		<p>{content.text}</p>
+		<a class="stamp" href="/nosotros">{content.button}</a>
 	</div>
 </section>
 
