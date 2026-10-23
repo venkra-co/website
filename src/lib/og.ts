@@ -5,7 +5,7 @@ import satori from 'satori';
 import sharp from 'sharp';
 import eagleSvg from '../assets/eagle.svg?raw';
 import logoSvg from '../assets/logo-full.svg?raw';
-import { get, photos } from '../data/cms';
+import { get, originalOf } from '../data/cms';
 import { site } from '../data/site';
 
 export const CARD = { width: 1200, height: 630 } as const;
@@ -46,7 +46,7 @@ const photoUri = async (input: Buffer | string, width: number, height: number) =
 const fetchPhoto = async (url: string) => {
 	try {
 		// A CMS photo's copy is not online until this build is, so read its original.
-		const original = photos.get(url);
+		const original = originalOf(url);
 		const response = original ? await get(original) : await fetch(url);
 		if (!response.ok) throw new Error(`HTTP ${response.status}`);
 		return Buffer.from(await response.arrayBuffer());

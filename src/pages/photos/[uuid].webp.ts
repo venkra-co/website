@@ -4,10 +4,7 @@ import { get, photos } from '../../data/cms';
 
 // The WebP copy of each photo uploaded to the CMS, made at build time.
 export const getStaticPaths = (() =>
-	[...photos].map(([copy, original]) => ({
-		params: { uuid: copy.slice(copy.lastIndexOf('/') + 1, -'.webp'.length) },
-		props: { original },
-	}))) satisfies GetStaticPaths;
+	[...photos].map(([uuid, original]) => ({ params: { uuid }, props: { original } }))) satisfies GetStaticPaths;
 
 export const GET: APIRoute = async ({ props }) => {
 	const image = await (await get(props.original)).arrayBuffer();
