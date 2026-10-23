@@ -1,0 +1,15 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "website",
+	"compatibility_date": "2026-10-23",
+	"workers_dev": true,
+	"preview_urls": true,
+	// PR builds run `wrangler preview`, which requires this block.
+	"previews": {},
+	"assets": {
+		"directory": "./dist",
+		// Links have no trailing slash, so serve /page without first redirecting to /page/.
+		"html_handling": "drop-trailing-slash",
+		"not_found_handling": "404-page"
+	}
+}
