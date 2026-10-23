@@ -11,9 +11,12 @@ import Contact from '../components/landing/Contact.astro';
 import JsonLd from '../components/seo/JsonLd.astro';
 import { categories } from '../data/categories';
 import { organizationSchema, websiteSchema } from '../lib/seo';
-import { page } from '../data/cms';
+import { page, sections } from '../data/cms';
 
 const { title, description } = page('inicio');
+// The sections the CMS shows under the hero, in its order. "marca" is the
+// manifesto followed by the details.
+const shown = sections.filter((section) => section.visible);
 ---
 
 <BaseLayout title={title} description={description} heroLogo=".hero-logo > svg">
@@ -22,12 +25,13 @@ const { title, description } = page('inicio');
 	<link slot="head" rel="preload" href="/hero/poster.webp" as="image" type="image/webp" fetchpriority="high" />
 	<main>
 		<Hero />
-		<CatalogueMosaic categories={categories} />
-		<FeaturedDrop />
-		<Manifesto />
-		<Craft />
-		<HowToBuy />
-		<InstagramStrip />
-		<Contact />
+		{shown.map(({ id, content }) => {
+			if (id === 'catalogo') return <CatalogueMosaic categories={categories} content={content} />;
+			if (id === 'destacados') return <FeaturedDrop content={content} />;
+			if (id === 'marca') return [<Manifesto content={content} />, <Craft content={content} />];
+			if (id === 'como-comprar') return <HowToBuy content={content} />;
+			if (id === 'instagram') return <InstagramStrip content={content} />;
+			if (id === 'contacto') return <Contact content={content} />;
+		})}
 	</main>
 </BaseLayout>

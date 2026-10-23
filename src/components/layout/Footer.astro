@@ -22,9 +22,11 @@ const year = new Date().getFullYear();
 					<a class="stamp page" href={link.href}><span class="num">{padIndex(i + 1)}</span>{link.label}</a>
 				))}
 			</nav>
-			<a class="stamp icon" href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
-				<Instagram aria-hidden="true" />
-			</a>
+			{site.instagram && (
+				<a class="stamp icon" href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
+					<Instagram aria-hidden="true" />
+				</a>
+			)}
 			<a class="stamp cta" href={site.whatsapp} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
 				<WhatsApp aria-hidden="true" />
 				<span>Escríbenos</span>

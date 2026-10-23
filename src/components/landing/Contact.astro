@@ -2,14 +2,20 @@
 import Eagle from '../../assets/eagle.svg';
 import WhatsApp from '../../assets/icons/whatsapp.svg';
 import { site } from '../../data/site';
+
+interface Props {
+	content: { text: string; button: string };
+}
+
+const { content } = Astro.props;
 ---
 
 <section id="escribenos" class="section contact cream" aria-label="Escríbenos">
 	<Eagle class="eagle" aria-hidden="true" />
-	<p>Pedidos, tallas o dudas. Te respondemos por WhatsApp.</p>
+	<p>{content.text}</p>
 	<a class="stamp cta" href={site.whatsapp} target="_blank" rel="noopener">
 		<WhatsApp aria-hidden="true" />
-		<span>Abrir WhatsApp</span>
+		<span>{content.button}</span>
 	</a>
 </section>
 

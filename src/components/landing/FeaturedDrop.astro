@@ -1,12 +1,20 @@
 ---
-import { featured } from '../../data/products';
+import { products } from '../../data/products';
 import ProductRow from '../catalogue/ProductRow.astro';
+
+interface Props {
+	content: { title: string; eyebrow: string; products: string[] };
+}
+
+const { content } = Astro.props;
+// The picked products in their order, minus any no longer published.
+const featured = content.products.flatMap((id) => products.filter((product) => product.id === id));
 ---
 
 <section id="destacados" class="section" aria-labelledby="featured-title">
 	<header class="section-head">
-		<h2 id="featured-title" class="section-title">Destacados</h2>
-		<p class="eyebrow">Uno de cada línea</p>
+		<h2 id="featured-title" class="section-title">{content.title}</h2>
+		<p class="eyebrow">{content.eyebrow}</p>
 	</header>
 	<ProductRow products={featured} />
 </section>

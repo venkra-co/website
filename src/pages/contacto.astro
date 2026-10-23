@@ -3,6 +3,14 @@ import PageLayout from '../layouts/PageLayout.astro';
 import WhatsApp from '../assets/icons/whatsapp.svg';
 import { site } from '../data/site';
 import { page } from '../data/cms';
+
+// The other contacts set in the CMS; an empty one is left out.
+const channels = [
+	{ label: 'Instagram', href: site.instagram },
+	{ label: 'Facebook', href: site.facebook },
+	{ label: 'Messenger', href: site.messenger },
+	{ label: site.email, href: site.email && `mailto:${site.email}` },
+].filter((channel) => channel.href);
 ---
 
 <PageLayout page={page('contacto')}>
@@ -11,8 +19,9 @@ import { page } from '../data/cms';
 			<WhatsApp aria-hidden="true" />
 			<span>WhatsApp</span>
 		</a>
-		<a class="stamp" href={site.instagram} target="_blank" rel="noopener">Instagram</a>
-		<a class="stamp" href={site.messenger} target="_blank" rel="noopener">Messenger</a>
+		{channels.map((channel) => (
+			<a class="stamp" href={channel.href} target="_blank" rel="noopener">{channel.label}</a>
+		))}
 	</div>
 </PageLayout>
 

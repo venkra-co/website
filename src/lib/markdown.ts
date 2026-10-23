@@ -1,10 +1,10 @@
 import { site } from '../data/site';
 
 // The small Markdown the CMS stores page texts in: blank-line paragraphs,
-// "## " headings, **bold**, [links](/path), and {whatsapp} and {telefono} for
-// the shop's contacts. Anything else is shown as typed, never as HTML.
+// "## " headings, **bold**, [links](/path), and {whatsapp}, {telefono} and
+// {correo} for the shop's contacts. Anything else is shown as typed, never as HTML.
 
-const tokens: Record<string, string> = { whatsapp: site.whatsapp, telefono: site.phone };
+const tokens: Record<string, string> = { whatsapp: site.whatsapp, telefono: site.phone, correo: site.email };
 
 const escape = (text: string) =>
 	text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

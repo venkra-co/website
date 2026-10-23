@@ -33,8 +33,14 @@ export const organizationSchema = (origin: URL) =>
 		url: origin.href,
 		logo: new URL('/icon-512.png', origin).href,
 		slogan: site.tagline,
-		sameAs: [site.instagram, site.facebook],
-		contactPoint: { '@type': 'ContactPoint', telephone: site.phone, contactType: 'customer service', availableLanguage: 'es' },
+		sameAs: [site.instagram, site.facebook].filter(Boolean),
+		contactPoint: {
+			'@type': 'ContactPoint',
+			telephone: site.phone,
+			...(site.email && { email: site.email }),
+			contactType: 'customer service',
+			availableLanguage: 'es',
+		},
 		// From /cambios-y-devoluciones: the legal 5 business days, buyer pays the return shipping.
 		hasMerchantReturnPolicy: {
 			'@type': 'MerchantReturnPolicy',
