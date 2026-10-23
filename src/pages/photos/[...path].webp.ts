@@ -2,9 +2,10 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import sharp from 'sharp';
 import { get, photos } from '../../data/cms';
 
-// The WebP copy of each photo uploaded to the CMS, made at build time.
+// The WebP copy of each photo uploaded to the CMS, made at build time and
+// named like the original: /photos/<product>/<product>-<n>.webp.
 export const getStaticPaths = (() =>
-	[...photos].map(([uuid, original]) => ({ params: { uuid }, props: { original } }))) satisfies GetStaticPaths;
+	[...photos].map(([path, original]) => ({ params: { path }, props: { original } }))) satisfies GetStaticPaths;
 
 export const GET: APIRoute = async ({ props }) => {
 	const image = await (await get(props.original)).arrayBuffer();
