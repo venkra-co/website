@@ -109,14 +109,15 @@ import Logo from '../../assets/logo-full.svg';
 	}
 
 	/* The curtain covers the site header too (z-index 50), with only the logo
-	   above it, until it opens. */
+	   above it, until it opens. It and the logo on it take the page's mode;
+	   the rest of the hero stays dark over the video. */
 	.hero-curtain {
 		position: absolute;
 		inset: 0;
 		z-index: 55;
 		pointer-events: none;
 		overflow: hidden;
-		background: var(--color-bg);
+		background: var(--brand-bg);
 		--hero-hole: 0px;
 		mask: radial-gradient(circle, transparent var(--hero-hole), #000 calc(var(--hero-hole) + 2px));
 		transition: --hero-hole 1.2s steps(12) 0.15s;
@@ -161,10 +162,14 @@ import Logo from '../../assets/logo-full.svg';
 		justify-content: center;
 		align-items: center;
 		color: var(--color-fg);
+		/* In light mode the logo goes from dark on the curtain to light over
+		   the video as the curtain opens. */
+		transition: color 1.2s 0.15s;
 	}
 
 	.hero:not([data-state='revealed']) .hero-content {
 		z-index: 56;
+		color: var(--brand-fg);
 	}
 
 	.hero-logo {
@@ -216,13 +221,14 @@ import Logo from '../../assets/logo-full.svg';
 		60% { opacity: 0.3; }
 	}
 
-	/* Outline copies of the logo that ripple out as the curtain opens. */
+	/* Outline copies of the logo that ripple out as the curtain opens, in the
+	   page's mode like the curtain. */
 	.hero-logo .hero-ring {
 		position: absolute;
 		inset: 0;
 		height: 100%;
 		fill: none;
-		stroke: var(--color-accent);
+		stroke: var(--brand-accent);
 		stroke-width: 2px;
 		opacity: 0;
 		pointer-events: none;
