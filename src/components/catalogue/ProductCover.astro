@@ -1,0 +1,222 @@
+---
+import type { Category } from '../../data/categories';
+import type { Product } from '../../data/products';
+import { formatPrice } from '../../lib/format';
+import { orderLink } from '../../lib/whatsapp';
+
+interface Props {
+	product: Product;
+	category: Category;
+}
+
+const { product, category } = Astro.props;
+
+const sizes = Object.entries(product.stock);
+// One-size products skip the size picker.
+const picker = sizes.length > 1;
+const size = sizes.find(([, units]) => units > 0)?.[0];
+---
+
+<section class="cover" data-cover>
+	<img class="photo" src={product.images[0]} alt={product.name} data-photo />
+	<div class="panel cream">
+		<div class="intro">
+			<p class="eyebrow">{category.name}</p>
+			<h1 class="name">{product.name}</h1>
+			<p class="price">{formatPrice(product.price)}</p>
+			<ul class="details">
+				{product.details.map((detail) => <li>{detail}</li>)}
+			</ul>
+		</div>
+		<div class="order">
+			{product.images.length > 1 && (
+				<div class="thumbs">
+					{product.images.map((src, i) => (
+						<button type="button" data-src={src} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`Foto ${i + 1}`}>
+							<img src={src} alt="" loading="lazy" decoding="async" />
+						</button>
+					))}
+				</div>
+			)}
+			{picker && (
+				<fieldset class="sizes">
+					<legend class="eyebrow">Talla</legend>
+					{sizes.map(([label, units]) => (
+						<button
+							class="stamp"
+							type="button"
+							data-size={label}
+							data-href={orderLink(product, label)}
+							aria-pressed={label === size ? 'true' : 'false'}
+							disabled={units === 0}
+							title={units === 0 ? 'Agotada' : undefined}
+						>
+							{label}
+						</button>
+					))}
+				</fieldset>
+			)}
+			{size ? (
+				<a class="stamp cta" href={orderLink(product, picker ? size : undefined)} target="_blank" rel="noopener" data-cta>
+					{picker ? <span>Pedir talla <span data-label>{size}</span> por WhatsApp</span> : 'Pedir por WhatsApp'}
+				</a>
+			) : (
+				<p class="stamp cta" aria-disabled="true">Agotada</p>
+			)}
+		</div>
+	</div>
+</section>
+
+<script>
+	// Listening on the document once keeps working across client navigations.
+	// Thumbs swap the photo; sizes point the order link at the chosen size.
+	document.addEventListener('click', (event) => {
+		const button = (event.target as Element).closest<HTMLButtonElement>('[data-cover] button');
+		const cover = button?.closest<HTMLElement>('[data-cover]');
+		if (!button || !cover) return;
+		const group = button.dataset.src ? 'data-src' : 'data-size';
+		cover.querySelectorAll(`[${group}]`).forEach((other) => other.setAttribute('aria-pressed', String(other === button)));
+		if (button.dataset.src) {
+			cover.querySelector<HTMLImageElement>('[data-photo]')!.src = button.dataset.src;
+		} else {
+			const cta = cover.querySelector<HTMLAnchorElement>('[data-cta]')!;
+			cta.href = button.dataset.href!;
+			cta.querySelector('[data-label]')!.textContent = button.dataset.size!;
+		}
+	});
+</script>
+
+<style>
+	.cover {
+		display: grid;
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+		min-height: min(52rem, calc(100svh - var(--header-height)));
+	}
+
+	.photo {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		background: var(--color-surface);
+	}
+
+	.panel {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 2.5rem;
+		padding: clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.intro {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.eyebrow {
+		color: inherit;
+	}
+
+	.name {
+		margin: 0;
+		font: 900 clamp(3rem, 7vw, 6.5rem)/0.82 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.price {
+		margin: 0;
+		font-size: 1.75rem;
+	}
+
+	.details {
+		margin: 0;
+		padding-left: 1.1rem;
+		line-height: 1.6;
+	}
+
+	.order {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.thumbs {
+		display: flex;
+		gap: 0.5rem;
+		overflow-x: auto;
+	}
+
+	.thumbs button {
+		flex: none;
+		width: 3.75rem;
+		padding: 0;
+		border: 2px solid transparent;
+		background: none;
+		cursor: pointer;
+	}
+
+	.thumbs img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 4 / 5;
+		object-fit: cover;
+	}
+
+	.thumbs [aria-pressed='true'] {
+		border-color: var(--color-bg);
+	}
+
+	.sizes {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.5rem;
+		margin: 0;
+		padding: 1rem 0 0;
+		border: 0;
+		border-top: 1px solid rgb(0 0 0 / 0.2);
+	}
+
+	.sizes legend {
+		float: left;
+		grid-column: 1 / -1;
+		margin-bottom: 0.5rem;
+	}
+
+	.sizes .stamp {
+		justify-content: center;
+		--stamp-size: 3rem;
+	}
+
+	.sizes [aria-pressed='true'] {
+		background: var(--color-bg);
+		border-color: var(--color-bg);
+		color: var(--color-accent);
+	}
+
+	.sizes .stamp:disabled {
+		opacity: 0.35;
+		text-decoration: line-through;
+		pointer-events: none;
+	}
+
+	.cta {
+		--stamp-size: 3.5rem;
+		margin: 0;
+	}
+
+	[aria-disabled='true'] {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	@media (max-width: 760px) {
+		.cover {
+			grid-template-columns: 1fr;
+			min-height: 0;
+		}
+
+		.photo {
+			height: 28rem;
+		}
+	}
+</style>

@@ -1,0 +1,145 @@
+---
+import type { Category } from '../../data/categories';
+import { padIndex } from '../../lib/format';
+
+interface Props {
+	categories: readonly Category[];
+	current: Category;
+}
+
+const { categories, current } = Astro.props;
+---
+
+{/* A fixed column on desktop; a dropdown above the wall on phones. */}
+<details class="index">
+	<summary>
+		<span><span class="label">Categoría · </span>{current.name}</span>
+	</summary>
+	<nav aria-label="Categorías">
+		<p class="eyebrow">Categorías</p>
+		<ul>
+			{categories.map((category, i) => (
+				<li>
+					<a href={`/catalogo/${category.id}`} aria-current={category.id === current.id ? 'page' : undefined}>
+						<span class="num">{padIndex(i + 1)}</span>
+						{category.name}
+						<span class="count">{category.products.length}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	</nav>
+</details>
+
+<script is:inline data-astro-rerun>
+	// Runs before paint: desktop opens the column, phones keep the dropdown closed.
+	{
+		const index = document.currentScript.previousElementSibling;
+		const desktop = matchMedia('(min-width: 761px)');
+		const sync = () => (index.open = desktop.matches);
+		sync();
+		desktop.addEventListener('change', sync);
+	}
+</script>
+
+<style>
+	.index {
+		align-self: start;
+		position: sticky;
+		top: calc(var(--header-height) + 1.5rem);
+	}
+
+	summary {
+		display: none;
+	}
+
+	.eyebrow {
+		margin-bottom: 0.75rem;
+	}
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	a {
+		display: grid;
+		grid-template-columns: 2rem 1fr auto;
+		align-items: baseline;
+		padding: 0.65rem 0;
+		border-bottom: 1px solid var(--color-line);
+		color: var(--color-muted);
+		font: 900 1.3rem/1 var(--font-display);
+		font-stretch: condensed;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+
+	a:hover,
+	a:focus-visible,
+	[aria-current='page'] {
+		color: var(--color-fg);
+	}
+
+	a:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	[aria-current='page'] .num {
+		color: var(--color-accent);
+		opacity: 1;
+	}
+
+	.count {
+		font: 400 0.75rem/1 var(--font-body);
+	}
+
+	@media (max-width: 760px) {
+		.index {
+			position: static;
+		}
+
+		summary {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			height: 3rem;
+			padding: 0 1rem;
+			border: 1px solid var(--color-line-strong);
+			font: 700 0.8rem/1 var(--font-display);
+			letter-spacing: 0.16em;
+			text-transform: uppercase;
+			list-style: none;
+			cursor: pointer;
+		}
+
+		summary::-webkit-details-marker {
+			display: none;
+		}
+
+		summary::after {
+			content: '↓';
+			color: var(--color-accent);
+		}
+
+		.index[open] summary::after {
+			content: '↑';
+		}
+
+		.label {
+			color: var(--color-muted);
+		}
+
+		nav {
+			padding: 0.25rem 1rem;
+			border: 1px solid var(--color-line-strong);
+			border-top: 0;
+		}
+
+		nav .eyebrow {
+			display: none;
+		}
+	}
+</style>

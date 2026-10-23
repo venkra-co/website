@@ -1,0 +1,71 @@
+---
+import type { Category } from '../../data/categories';
+import { formatPrice, padIndex } from '../../lib/format';
+
+interface Props {
+	category: Category;
+	index: number;
+	featured?: boolean;
+}
+
+const { category, index, featured = false } = Astro.props;
+---
+
+<a class:list={['tile', { featured }]} href={`/catalogo/${category.id}`}>
+	<img src={category.image} alt="" loading="lazy" decoding="async" />
+	<span class="index">{padIndex(index)}</span>
+	<span class="caption">
+		<span class="name">{category.name}</span>
+		<span class="meta">{category.products.length} ref. · desde {formatPrice(category.fromPrice)}</span>
+	</span>
+</a>
+
+<style>
+	/* Darken the bottom so the caption always reads over the photo. */
+	.tile::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgb(0 0 0 / 0.85), transparent 55%);
+	}
+
+	img {
+		position: absolute;
+		inset: 0;
+	}
+
+	.index {
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		padding: 0.5rem 0.75rem;
+		background: var(--color-bg);
+		font: 900 1.1rem/1 var(--font-display);
+	}
+
+	.caption {
+		position: absolute;
+		z-index: 1;
+		inset: auto clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem);
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.name {
+		font: 900 clamp(1.75rem, 3.5vw, 3rem)/0.9 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.featured .name {
+		font-size: clamp(2.75rem, 7vw, 6rem);
+	}
+
+	.meta {
+		color: var(--color-accent);
+		font: 700 0.7rem/1 var(--font-body);
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+	}
+</style>

@@ -1,0 +1,77 @@
+---
+import type { Category } from '../../data/categories';
+import CategoryTile from './CategoryTile.astro';
+import { site } from '../../data/site';
+
+interface Props {
+	categories: readonly Category[];
+}
+
+const { categories } = Astro.props;
+---
+
+<section id="catalogo" class="section" aria-labelledby="catalogue-title">
+	<header class="section-head">
+		<h2 id="catalogue-title" class="section-title">Catálogo</h2>
+		<p class="eyebrow">{site.stamp}</p>
+	</header>
+	<ul class="mosaic">
+		{categories.map((category, i) => (
+			<li>
+				<CategoryTile category={category} index={i + 1} featured={i === 0} />
+			</li>
+		))}
+	</ul>
+</section>
+
+<style>
+	/* The first category is the big tile and the second a wide one; any
+	   further categories fill the grid as single tiles. */
+	.mosaic {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-auto-rows: minmax(14rem, 34vh);
+		grid-auto-flow: dense;
+		gap: 4px;
+	}
+
+	li:first-child {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+
+	li:nth-child(2) {
+		grid-column: span 2;
+	}
+
+	/* With three categories, the third fills the space under the second. */
+	@media (min-width: 761px) {
+		li:nth-child(3):last-child {
+			grid-column: span 2;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.mosaic {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-rows: 22rem;
+			grid-auto-rows: 14rem;
+		}
+
+		li:first-child {
+			grid-row: span 1;
+		}
+
+		li:nth-child(2) {
+			grid-column: span 1;
+		}
+
+		/* With an even count, the last tile would sit alone: let it fill the row. */
+		li:last-child:nth-child(even) {
+			grid-column: span 2;
+		}
+	}
+</style>

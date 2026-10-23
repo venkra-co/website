@@ -1,0 +1,76 @@
+---
+import { site } from '../../data/site';
+
+// Brand shots from the R2 image bucket, each linking to its Instagram post.
+const image = (file: string) => `https://images.venkra.maxfika.com/${file}.webp`;
+const posts = [
+	{ src: image('01-saxophonist'), alt: 'Saxofonista con ropa Venkra', href: 'https://www.instagram.com/reel/Cg7z0oLKxjA/' },
+	{ src: image('02-venkra-seated-models'), alt: 'Modelos sentados con ropa Venkra', href: 'https://www.instagram.com/p/CndWUNZtq34/' },
+	{ src: image('04-venkra-event'), alt: 'Evento Venkra', href: 'https://www.instagram.com/p/Cg7pEUtNOQw/' },
+	{ src: image('03-venkra-cap-and-shirt'), alt: 'Gorra y camiseta Venkra', href: 'https://www.instagram.com/p/CjtLOMDuDZe/' },
+	{ src: image('05-venkra-models'), alt: 'Modelos con ropa Venkra', href: 'https://www.instagram.com/p/Cg8EEdeLDHY/' },
+];
+------
+
+<section id="instagram" class="section" aria-labelledby="instagram-title">
+	<header class="section-head">
+		<h2 id="instagram-title" class="section-title">@venkra.co</h2>
+		<a class="stamp" href={site.instagram} target="_blank" rel="noopener">Síguenos en Instagram</a>
+	</header>
+	<ul class="photos">
+		{posts.map((post) => (
+			<li>
+				<a href={post.href} target="_blank" rel="noopener">
+					<img src={post.src} alt={post.alt} loading="lazy" decoding="async" />
+				</a>
+			</li>
+		))}
+	</ul>
+</section>
+
+<style>
+	.section-head {
+		align-items: end;
+	}
+
+	.photos {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		background: var(--color-surface);
+	}
+
+	a {
+		display: block;
+	}
+
+	a:hover img,
+	a:focus-visible img {
+		opacity: 0.8;
+	}
+
+	/* Two rows of three would leave a hole, so scroll the five sideways. */
+	@media (max-width: 760px) {
+		.photos {
+			grid-template-columns: none;
+			grid-auto-flow: column;
+			grid-auto-columns: 40%;
+			overflow-x: auto;
+			scroll-snap-type: x mandatory;
+		}
+
+		li {
+			scroll-snap-align: start;
+		}
+	}
+</style>

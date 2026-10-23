@@ -1,0 +1,185 @@
+/* Design tokens from brand-personality.md, plus the page defaults. */
+:root {
+	color-scheme: dark;
+
+	--color-bg: #000;
+	--color-fg: #fff;
+	--color-accent: #efe3c8;
+	--color-muted: #9a9a9a;
+	--color-surface: #111;
+	--color-line: rgb(255 255 255 / 0.15);
+	--color-line-strong: rgb(255 255 255 / 0.35);
+
+	--font-display: 'Avenir Next Condensed', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif;
+	--font-body: system-ui, sans-serif;
+
+	--ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+	--page-max: 90rem;
+	--page-gutter: clamp(1rem, 4vw, 3rem);
+	--header-height: 4rem;
+}
+
+body {
+	margin: 0;
+	background: var(--color-bg);
+	color: var(--color-fg);
+	font-family: var(--font-body);
+}
+
+/* A landing section: centred, padded, and clear of the fixed header when linked to. */
+.section {
+	scroll-margin-top: var(--header-height);
+	max-width: var(--page-max);
+	margin: 0 auto;
+	padding: clamp(4rem, 8vw, 6rem) var(--page-gutter);
+	box-sizing: border-box;
+}
+
+/* A section's big title, with an optional accent line beside it. */
+.section-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.section-title {
+	margin: 0;
+	font: 900 clamp(3rem, 9vw, 7rem)/0.85 var(--font-display);
+	font-stretch: condensed;
+	text-transform: uppercase;
+}
+
+.eyebrow {
+	margin: 0;
+	color: var(--color-accent);
+	font: 700 0.8rem/1 var(--font-body);
+	letter-spacing: 0.3em;
+	text-transform: uppercase;
+}
+
+/* How much of a stamp's box shows, 0 to 1. Registered so it can be animated;
+   the header starts its stamps at 0 and flickers them on. */
+@property --on {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 1;
+}
+
+/* Square, outlined labels like stamped tags, shared by the header and the footer.
+   A component can resize them with --stamp-size. */
+.stamp {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	height: var(--stamp-size, 2.4rem);
+	padding: 0 1rem;
+	border: 1px solid color-mix(in srgb, var(--color-line-strong) calc(var(--on) * 100%), transparent);
+	background: transparent;
+	color: var(--color-fg);
+	font: 700 0.95rem/1 var(--font-display);
+	letter-spacing: 0.16em;
+	text-decoration: none;
+	text-transform: uppercase;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+.stamp:hover {
+	background: var(--color-fg);
+	border-color: var(--color-fg);
+	color: var(--color-bg);
+}
+
+.stamp:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 3px;
+}
+
+.stamp svg {
+	width: 1.1rem;
+	height: 1.1rem;
+}
+
+.num {
+	font: 600 0.65rem/1 var(--font-body);
+	letter-spacing: 0.05em;
+	opacity: 0.6;
+}
+
+.stamp.icon {
+	width: var(--stamp-size, 2.4rem);
+	padding: 0;
+	justify-content: center;
+}
+
+.stamp.cta {
+	border-color: color-mix(in srgb, var(--color-accent) calc(var(--on) * 100%), transparent);
+	background: color-mix(in srgb, var(--color-accent) calc(var(--on) * 100%), transparent);
+	color: color-mix(in srgb, var(--color-bg) calc(var(--on) * 100%), var(--color-accent));
+	justify-content: center;
+}
+
+.stamp.cta svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* A cream panel: its stamps are drawn in black, the CTA turns black with cream
+   text, and focus rings turn black so they don't vanish on the cream. */
+.cream {
+	--color-line-strong: rgb(0 0 0 / 0.4);
+	background: var(--color-accent);
+	color: var(--color-bg);
+}
+
+.cream .stamp:not(:hover) {
+	color: var(--color-bg);
+}
+
+.cream .stamp.cta:not(:hover) {
+	border-color: var(--color-bg);
+	background: var(--color-bg);
+	color: var(--color-accent);
+}
+
+.cream :focus-visible {
+	outline-color: var(--color-bg);
+}
+
+/* A photo tile that links somewhere, shared by the category and product walls. */
+.tile {
+	position: relative;
+	display: block;
+	height: 100%;
+	overflow: hidden;
+	background: var(--color-surface);
+	color: var(--color-fg);
+	text-decoration: none;
+}
+
+.tile:hover,
+.tile:focus-visible {
+	outline: 3px solid var(--color-accent);
+	outline-offset: -3px;
+}
+
+.tile img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.6s var(--ease-out);
+}
+
+.tile:hover img {
+	transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tile img {
+		transition: none;
+	}
+}

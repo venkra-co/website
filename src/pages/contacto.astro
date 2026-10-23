@@ -1,0 +1,33 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import WhatsApp from '../assets/icons/whatsapp.svg';
+import { site } from '../data/site';
+---
+
+<PageLayout
+	title="Contacto"
+	description="Escríbenos por WhatsApp, Instagram o Messenger para pedidos, tallas y cambios. Venkra, streetwear hecho a mano en Colombia."
+	eyebrow="Te respondemos"
+>
+	<p>
+		Pedidos, tallas, cambios o cualquier duda: escríbenos por WhatsApp al <strong>{site.phone}</strong>. También
+		estamos en Instagram y en Messenger.
+	</p>
+	<div class="channels">
+		<a class="stamp cta" href={site.whatsapp} target="_blank" rel="noopener">
+			<WhatsApp aria-hidden="true" />
+			<span>WhatsApp</span>
+		</a>
+		<a class="stamp" href={site.instagram} target="_blank" rel="noopener">Instagram</a>
+		<a class="stamp" href={site.messenger} target="_blank" rel="noopener">Messenger</a>
+	</div>
+</PageLayout>
+
+<style>
+	.channels {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		--stamp-size: 2.75rem;
+	}
+</style>
