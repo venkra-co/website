@@ -18,9 +18,11 @@ export interface Category {
 }
 
 // A category with nothing published has no price to show, so it is left out.
+// One with no image yet shows its first product's cover.
 export const categories: readonly Category[] = catalogue
 	.filter((category) => category.products.length > 0)
 	.map((category) => ({
 		...category,
+		image: category.image || category.products[0].images[0],
 		fromPrice: Math.min(...category.products.map((product) => product.price)),
 	}));
