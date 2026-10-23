@@ -3,13 +3,9 @@ import PageLayout from '../layouts/PageLayout.astro';
 import WhatsApp from '../assets/icons/whatsapp.svg';
 import { site } from '../data/site';
 import { page } from '../data/cms';
-import { markdown } from '../lib/markdown';
-
-const { title, description, eyebrow, body } = page('contacto');
 ---
 
-<PageLayout title={title} description={description} eyebrow={eyebrow}>
-	<Fragment set:html={markdown(body ?? '')} />
+<PageLayout page={page('contacto')}>
 	<div class="channels">
 		<a class="stamp cta" href={site.whatsapp} target="_blank" rel="noopener">
 			<WhatsApp aria-hidden="true" />

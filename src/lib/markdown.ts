@@ -11,7 +11,7 @@ const escape = (text: string) =>
 
 function inline(text: string): string {
 	return escape(text.replace(/\{(\w+)\}/g, (token, name: string) => tokens[name] ?? token))
-		.replace(/\[([^\]]+)\]\(((?:\/|https?:\/\/)[^)\s]*)\)/g, (_, label: string, href: string) =>
+		.replace(/\[([^\]]+)\]\(((?:\/(?!\/)|https?:\/\/)[^)\s]*)\)/g, (_, label: string, href: string) =>
 			href.startsWith('/')
 				? `<a href="${href}">${label}</a>`
 				: `<a href="${href}" target="_blank" rel="noopener">${label}</a>`,

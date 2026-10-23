@@ -1,11 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import { page } from '../data/cms';
-import { markdown } from '../lib/markdown';
-
-const { title, description, eyebrow, body } = page('cambios-y-devoluciones');
 ---
 
-<PageLayout title={title} description={description} eyebrow={eyebrow}>
-	<Fragment set:html={markdown(body ?? '')} />
-</PageLayout>
+<PageLayout page={page('cambios-y-devoluciones')} />
