@@ -235,8 +235,14 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 	}
 
 	/* The mode button shows the icon of the visitor's pick. */
-	.theme svg:not(:global([data-pick='dark']) .dark, :global([data-pick='light']) .light, :global([data-pick='system']) .system) {
+	.theme svg {
 		display: none;
+	}
+
+	:global([data-pick='dark']) .theme .dark,
+	:global([data-pick='light']) .theme .light,
+	:global([data-pick='system']) .theme .system {
+		display: block;
 	}
 
 	@keyframes stamp-flicker {
