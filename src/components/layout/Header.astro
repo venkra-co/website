@@ -30,8 +30,10 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 			<Eagle aria-hidden="true" />
 		</a>
 		<div class="actions">
-			<button class="stamp icon theme" style={flicker(links.length + 2)} type="button" aria-label="Cambiar entre modo claro y oscuro">
-				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" /></svg>
+			<button class="stamp icon theme" style={flicker(links.length + 2)} type="button">
+				<svg class="dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor" /></svg>
+				<svg class="light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor" /><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" /></svg>
+				<svg class="system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" /></svg>
 			</button>
 			{site.instagram && (
 				<a class="stamp icon" style={flicker(links.length)} href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
@@ -109,12 +111,22 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 	menu.addEventListener('click', (event) => (event.target as Element).closest('a') && setOpen(false));
 	addEventListener('keydown', (event) => event.key === 'Escape' && setOpen(false));
 
-	// The visitor's pick of light or dark, kept for their next visits.
-	header.querySelector('.theme')!.addEventListener('click', () => {
-		const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-		document.documentElement.dataset.theme = theme;
+	// The mode button steps through dark, light and the device's, and keeps the
+	// visitor's pick for their next visits. BaseLayout sets the first one.
+	const root = document.documentElement;
+	const theme = header.querySelector<HTMLButtonElement>('.theme')!;
+	const MODES: Record<string, [next: string, label: string]> = {
+		dark: ['light', 'oscuro'],
+		light: ['system', 'claro'],
+		system: ['dark', 'el del dispositivo'],
+	};
+	const label = () => (theme.ariaLabel = `Modo: ${MODES[root.dataset.pick!][1]}. Cambiar`);
+	theme.addEventListener('click', () => {
+		const pick = (root.dataset.pick = MODES[root.dataset.pick!][0]);
+		root.dataset.theme = pick === 'system' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : pick;
+		label();
 		try {
-			localStorage.setItem('theme', theme);
+			localStorage.setItem('theme', pick);
 		} catch {}
 	});
 
@@ -123,6 +135,7 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 		const selector = document.body.dataset.heroLogo;
 		logo = selector ? document.querySelector(selector) : null;
 		setOpen(false);
+		label();
 		measure();
 		update();
 	});
@@ -219,6 +232,11 @@ const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
 		--on: 1;
 		animation: stamp-flicker 0.6s steps(1) both;
 		animation-delay: var(--delay, 0s);
+	}
+
+	/* The mode button shows the icon of the visitor's pick. */
+	.theme svg:not(:global([data-pick='dark']) .dark, :global([data-pick='light']) .light, :global([data-pick='system']) .system) {
+		display: none;
 	}
 
 	@keyframes stamp-flicker {

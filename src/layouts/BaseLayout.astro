@@ -68,21 +68,22 @@ const palettes = Object.entries(settings)
 		<meta name="description" content={description} />
 		<link rel="canonical" href={url} />
 		<style is:inline set:html={`:root { ${palettes} }`} />
-		<script is:inline>
-			// Light or dark: the visitor's pick from the header, else the system's.
-			// Runs before the first paint, and again after each client navigation,
-			// which resets <html>'s attributes.
-			(() => {
-				const apply = () => {
-					let pick;
-					try {
-						pick = localStorage.getItem('theme');
-					} catch {}
-					document.documentElement.dataset.theme = pick || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-				};
-				apply();
-				document.addEventListener('astro:after-swap', apply);
-			})();
+		<script is:inline define:vars={{ fallback: settings.theme }}>
+			// The visitor's pick from the header (dark, light or system), else the
+			// CMS's default; system follows the device. Runs before the first
+			// paint, and again after each client navigation, which resets <html>'s
+			// attributes.
+			const apply = () => {
+				let pick;
+				try {
+					pick = localStorage.getItem('theme');
+				} catch {}
+				const root = document.documentElement;
+				root.dataset.pick = pick ||= fallback;
+				root.dataset.theme = pick === 'system' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : pick;
+			};
+			apply();
+			document.addEventListener('astro:after-swap', apply);
 		</script>
 	</head>
 	<body data-hero-logo={heroLogo}>
