@@ -3,15 +3,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryBlock from '../../components/catalogue/CategoryBlock.astro';
 import { categories } from '../../data/categories';
 import { products } from '../../data/products';
+import { page } from '../../data/cms';
+
+const { title, description } = page('catalogo');
 ---
 
-<BaseLayout
-	title="Catálogo · Venkra"
-	description="Todas las líneas de Venkra: camisetas oversized Over Smoke y Over Qtar, y gorras trucker. Precios en pesos y pedidos por WhatsApp."
->
+<BaseLayout title={`${title} · Venkra`} description={description}>
 	<main class="section catalogue">
 		<header class="section-head">
-			<h1 class="section-title">Catálogo</h1>
+			<h1 class="section-title">{title}</h1>
 			<p class="eyebrow">{categories.length} líneas · {products.length} prendas</p>
 		</header>
 		<div class="lines">

@@ -1,26 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
+import { page } from '../data/cms';
 ---
 
-<PageLayout
-	title="Términos"
-	description="Condiciones de uso de Venkra: precios en pesos colombianos, disponibilidad por WhatsApp y propiedad de la marca."
-	eyebrow="Condiciones de uso"
->
-	<h2>Precios y disponibilidad</h2>
-	<p>
-		Los precios están en pesos colombianos. La disponibilidad de cada prenda, color y talla se confirma por
-		WhatsApp al hacer tu pedido, y el pedido queda en firme cuando confirmamos el pago.
-	</p>
-
-	<h2>Fotos y colores</h2>
-	<p>Los colores pueden variar un poco según la pantalla en la que veas las fotos.</p>
-
-	<h2>Propiedad intelectual</h2>
-	<p>La marca VENKRA, sus diseños, logos y fotos son propiedad de Venkra y no se pueden usar sin autorización.</p>
-
-	<h2>Cambios y privacidad</h2>
-	<p>
-		Consulta nuestra política de <a href="/cambios-y-devoluciones">cambios y devoluciones</a> y nuestro <a href="/privacidad">aviso de privacidad</a>.
-	</p>
-</PageLayout>
+<PageLayout page={page('terminos')} />

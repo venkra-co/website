@@ -1,29 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import { site } from '../data/site';
+import { page } from '../data/cms';
 ---
 
-<PageLayout
-	title="Cambios y devoluciones"
-	description="Cómo cambiar tu prenda Venkra de talla o color, tu derecho de retracto de 5 días hábiles y la garantía por defectos de fabricación."
-	eyebrow="Compra tranquilo"
->
-	<h2>Cambios</h2>
-	<p>
-		Si la talla o el color no es el que esperabas, escríbenos por <a href={site.whatsapp} target="_blank" rel="noopener">WhatsApp</a> y coordinamos el cambio. La prenda debe
-		estar sin uso, sin lavar y con sus etiquetas.
-	</p>
-
-	<h2>Derecho de retracto</h2>
-	<p>
-		Como compraste a distancia, tienes derecho a retractarte de la compra dentro de los <strong>5 días hábiles</strong>
-		siguientes a la entrega, según el artículo 47 de la Ley 1480 de 2011. Te devolvemos el dinero pagado y los
-		costos de transporte de la devolución corren por tu cuenta.
-	</p>
-
-	<h2>Garantía</h2>
-	<p>
-		Si tu prenda llega con un defecto de fabricación, escríbenos con fotos y la reparamos, la cambiamos o te
-		devolvemos el dinero, como lo indica la garantía legal.
-	</p>
-</PageLayout>
+<PageLayout page={page('cambios-y-devoluciones')} />

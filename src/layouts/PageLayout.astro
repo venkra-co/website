@@ -1,13 +1,14 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import type { Page } from '../data/cms';
+import { markdown } from '../lib/markdown';
 
 interface Props {
-	title: string;
-	description?: string;
-	eyebrow?: string;
+	/** A page from the CMS, or the same fields for a page that is not in it. */
+	page: Pick<Page, 'title'> & Partial<Pick<Page, 'description' | 'eyebrow' | 'body'>>;
 }
 
-const { title, description, eyebrow } = Astro.props;
+const { title, description, eyebrow, body } = Astro.props.page;
 ---
 
 <BaseLayout title={`${title} · Venkra`} description={description}>
@@ -16,6 +17,7 @@ const { title, description, eyebrow } = Astro.props;
 			<h1 class="section-title">{title}</h1>
 			{eyebrow && <p class="eyebrow">{eyebrow}</p>}
 		</header>
+		{body && <Fragment set:html={markdown(body)} />}
 		<slot />
 	</main>
 </BaseLayout>

@@ -1,37 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import { site } from '../data/site';
+import { page } from '../data/cms';
 ---
 
-<PageLayout
-	title="Preguntas frecuentes"
-	description="Cómo comprar en Venkra, medios de pago, envíos según tu ciudad, guía de tallas oversize y cuidado de tus prendas."
-	eyebrow="Lo que más nos preguntan"
->
-	<h2>¿Cómo compro?</h2>
-	<p>
-		Elige tu prenda en el <a href="/catalogo">catálogo</a> y escríbenos por <a href={site.whatsapp} target="_blank" rel="noopener">WhatsApp</a> con la prenda, el color y tu talla. Te
-		confirmamos disponibilidad, pago y envío.
-	</p>
-
-	<h2>¿Qué medios de pago reciben?</h2>
-	<p>Te contamos los medios de pago disponibles por WhatsApp al confirmar tu pedido.</p>
-
-	<h2>¿Hacen envíos?</h2>
-	<p>Sí. Coordinamos contigo la entrega, el costo y el tiempo de envío según tu ciudad.</p>
-
-	<h2>¿Qué talla pido?</h2>
-	<p>
-		Nuestras camisetas oversize tienen un corte amplio. Si dudas entre dos tallas, escríbenos con tu estatura y
-		cómo te gusta que te quede y te recomendamos una.
-	</p>
-
-	<h2>¿Cómo cuido mi prenda?</h2>
-	<p>
-		Lávala al revés, en agua fría y sin blanqueador. No la planches sobre el estampado ni la seques en secadora,
-		así el vinilo en relieve dura mucho más.
-	</p>
-
-	<h2>¿Puedo cambiarla?</h2>
-	<p>Sí. Mira nuestra política de <a href="/cambios-y-devoluciones">cambios y devoluciones</a>.</p>
-</PageLayout>
+<PageLayout page={page('preguntas-frecuentes')} />
