@@ -70,7 +70,7 @@ export const productSchema = (product: Product, origin: URL) =>
 		'@type': 'Product',
 		name: product.name,
 		description: productDescription(product),
-		image: product.images,
+		image: product.images.map((image) => new URL(image, origin).href),
 		sku: product.id,
 		category: categoryOf(product).name,
 		brand: { '@type': 'Brand', name: 'Venkra' },

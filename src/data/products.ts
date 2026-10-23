@@ -9,7 +9,7 @@ export interface Product {
 	/** Price in pesos. */
 	price: number;
 	details: string[];
-	/** Photos, cover first. */
+	/** Photos, cover first: full URLs, or /photos/ paths for those from the CMS. */
 	images: string[];
 	/** Units in stock per size, in the order sizes are shown. */
 	stock: Record<string, number>;
