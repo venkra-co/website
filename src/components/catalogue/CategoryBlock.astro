@@ -1,0 +1,146 @@
+---
+import type { Category } from '../../data/categories';
+import { formatPrice, padIndex } from '../../lib/format';
+
+interface Props {
+	category: Category;
+	index: number;
+}
+
+const { category, index } = Astro.props;
+const href = `/catalogo/${category.id}`;
+---
+
+{/* One line of the catalogue: its cover photo beside a price list of its pieces. */}
+<article class="block" aria-labelledby={`${category.id}-title`}>
+	<a class="tile cover" href={href} tabindex="-1" aria-hidden="true">
+		<img src={category.image} alt="" loading={index === 1 ? 'eager' : 'lazy'} decoding="async" />
+		<span class="number">{padIndex(index)}</span>
+	</a>
+	<div class="body">
+		<p class="eyebrow">Línea {padIndex(index)} · Desde {formatPrice(category.fromPrice)}</p>
+		<h2 id={`${category.id}-title`} class="name"><a href={href}>{category.name}</a></h2>
+		<p class="description">{category.description}</p>
+		<ul class="list">
+			{category.products.map((product) => (
+				<li>
+					<a href={`${href}/${product.id}`}>
+						<span>{product.name}</span>
+						<span class="price">{formatPrice(product.price)}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+		<a class="stamp cta" href={href}>Ver {category.name}</a>
+	</div>
+</article>
+
+<style>
+	.block {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	/* Every other line puts its photo on the right. */
+	.block:nth-of-type(even) .cover {
+		order: 1;
+	}
+
+	.cover {
+		aspect-ratio: 4 / 5;
+	}
+
+	.number {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 0.75rem 1rem;
+		background: var(--color-bg);
+		font: 900 clamp(2rem, 4vw, 3.5rem)/0.85 var(--font-display);
+		font-stretch: condensed;
+	}
+
+	.body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.5rem;
+		padding: clamp(1.5rem, 4vw, 3rem);
+		background: var(--color-surface);
+	}
+
+	.name {
+		margin: 0;
+		font: 900 clamp(3rem, 7vw, 6rem)/0.85 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.name a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.name a:hover,
+	.name a:focus-visible {
+		color: var(--color-accent);
+	}
+
+	.description {
+		max-width: 32rem;
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.6;
+	}
+
+	.list {
+		list-style: none;
+		align-self: stretch;
+		margin: auto 0 0;
+		padding: 0;
+		border-top: 1px solid var(--color-line-strong);
+	}
+
+	.list a {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.85rem 0;
+		border-bottom: 1px solid var(--color-line);
+		color: var(--color-fg);
+		font: 700 0.95rem/1.2 var(--font-display);
+		letter-spacing: 0.14em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+
+	.price {
+		color: var(--color-accent);
+		white-space: nowrap;
+	}
+
+	.list a:hover,
+	.list a:focus-visible {
+		color: var(--color-accent);
+		outline: none;
+	}
+
+	.list a:focus-visible {
+		border-bottom-color: var(--color-accent);
+	}
+
+	@media (max-width: 760px) {
+		.block {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.block:nth-of-type(even) .cover {
+			order: 0;
+		}
+
+		.cover {
+			aspect-ratio: 4 / 3;
+		}
+	}
+</style>

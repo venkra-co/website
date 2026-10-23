@@ -1,0 +1,318 @@
+---
+import Logo from '../../assets/logo-full.svg';
+---
+
+<section class="hero">
+	<noscript><style>.hero-curtain, .hero-ring { display: none; } .hero-logo g, .hero-scroll { opacity: 1 !important; animation: none !important; } .hero ~ * { visibility: visible !important; }</style></noscript>
+	<video
+		class="hero-video"
+		autoplay
+		muted
+		loop
+		playsinline
+		disablepictureinpicture
+		disableremoteplayback
+		preload="auto"
+		poster="/hero/poster.webp"
+		aria-hidden="true"
+	>
+		<!-- No source matches with reduced motion, so only the poster shows. -->
+		<source src="/hero/hero.av1.mp4" type='video/mp4; codecs="av01.0.04M.08"' media="(prefers-reduced-motion: no-preference)" />
+		<source src="/hero/hero.h264.mp4" type="video/mp4" media="(prefers-reduced-motion: no-preference)" />
+	</video>
+	<div class="hero-curtain"></div>
+	<div class="hero-content">
+		<h1 class="hero-logo">
+			<Logo role="img" aria-label="Venkra" />
+			<svg class="hero-ring" viewBox="0 0 4721 1841" aria-hidden="true"><use href="#venkra-mark" /></svg>
+			<svg class="hero-ring" viewBox="0 0 4721 1841" aria-hidden="true"><use href="#venkra-mark" /></svg>
+			<svg class="hero-ring" viewBox="0 0 4721 1841" aria-hidden="true"><use href="#venkra-mark" /></svg>
+		</h1>
+		<div class="hero-scroll" aria-hidden="true">
+			<span lang="en">SCROLL DOWN</span>
+			<svg class="hero-scroll-arrow" viewBox="0 0 16 16" fill="currentColor">
+				<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+			</svg>
+		</div>
+	</div>
+</section>
+
+<script is:inline data-astro-rerun>
+	(() => {
+		// Keep the logo on the curtain until the video (or, with reduced motion,
+		// the poster) is ready, for at least MIN_MS (long enough for the logo to
+		// flicker on) and at most MAX_MS.
+		const MIN_MS = 2600;
+		const MAX_MS = 4000;
+		const hero = document.querySelector('.hero');
+		const video = hero.querySelector('video');
+		const start = performance.now();
+		const dropCurtain = () => hero.querySelectorAll('.hero-curtain, .hero-ring').forEach((el) => el.remove());
+		let revealed = false;
+		const reveal = () => {
+			if (revealed) return;
+			revealed = true;
+			const wait = Math.max(0, MIN_MS - (performance.now() - start));
+			setTimeout(() => {
+				hero.dataset.state = 'revealed';
+				// Once the curtain has opened and the rings have rippled out,
+				// drop them so their mask and grain are never drawn again.
+				setTimeout(dropCurtain, 1800);
+			}, wait);
+		};
+		if (window.venkraIntroPlayed) {
+			// The intro plays once per visit: coming back through the client
+			// router opens straight onto the video.
+			revealed = true;
+			hero.dataset.state = 'revealed';
+			dropCurtain();
+		} else if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+			if (video.readyState >= 3) reveal();
+			else video.addEventListener('canplay', reveal, { once: true });
+		} else {
+			const poster = new Image();
+			poster.onload = poster.onerror = reveal;
+			poster.src = video.poster;
+		}
+		window.venkraIntroPlayed = true;
+		setTimeout(reveal, MAX_MS);
+
+		// Only decode the video while the hero is on screen.
+		new IntersectionObserver(([entry]) => {
+			if (!entry.isIntersecting) video.pause();
+			else if (revealed) video.play().catch(() => {});
+		}).observe(hero);
+	})();
+</script>
+
+<style>
+	.hero {
+		position: relative;
+		height: 100vh;
+		height: 100svh;
+		overflow: hidden;
+		background: var(--color-bg);
+	}
+
+	.hero-video {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* The mask's hole grows from the centre to reveal the video. */
+	@property --hero-hole {
+		syntax: '<length>';
+		inherits: false;
+		initial-value: 0px;
+	}
+
+	/* The curtain covers the site header too (z-index 50), with only the logo
+	   above it, until it opens. */
+	.hero-curtain {
+		position: absolute;
+		inset: 0;
+		z-index: 55;
+		pointer-events: none;
+		overflow: hidden;
+		background: var(--color-bg);
+		--hero-hole: 0px;
+		mask: radial-gradient(circle, transparent var(--hero-hole), #000 calc(var(--hero-hole) + 2px));
+		transition: --hero-hole 1.2s steps(12) 0.15s;
+	}
+
+	/* Film grain, drawn from an inline noise SVG. */
+	.hero-curtain::after {
+		content: '';
+		position: absolute;
+		inset: -50%;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		opacity: 0.09;
+		animation: hero-grain 0.5s steps(4) infinite;
+	}
+
+	@keyframes hero-grain {
+		25% { transform: translate(-7%, 4%); }
+		50% { transform: translate(5%, -6%); }
+		75% { transform: translate(-3%, -2%); }
+	}
+
+	.hero[data-state='revealed'] .hero-curtain {
+		--hero-hole: 120vmax;
+	}
+
+	/* The rest of the page stays hidden until the curtain has opened. Phones
+	   can show more than the hero's height behind a see-through toolbar, so
+	   without this the next section peeks out under the curtain. */
+	.hero ~ :global(*) {
+		transition: visibility 0s 1.2s;
+	}
+
+	.hero:not([data-state='revealed']) ~ :global(*) {
+		visibility: hidden;
+		transition: none;
+	}
+
+	.hero-content {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: var(--color-fg);
+	}
+
+	.hero:not([data-state='revealed']) .hero-content {
+		z-index: 56;
+	}
+
+	.hero-logo {
+		position: relative;
+		width: min(60%, 60rem);
+		margin: 0;
+		transition: filter 0.4s 0.5s;
+	}
+
+	.hero[data-state='revealed'] .hero-logo {
+		filter: drop-shadow(0 0 5px #000);
+	}
+
+	.hero-logo svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+	}
+
+	/* Each piece flickers on like a failing sign, in a scattered order. */
+	.hero-logo :global(:is(.eg, .lt, .tmg, .tg)) {
+		opacity: 0;
+		animation: hero-flicker 0.9s steps(1) forwards;
+	}
+
+	.hero-logo :global(.eg0) { animation-delay: 0.85s; }
+	.hero-logo :global(.eg1) { animation-delay: 0.1s; }
+	.hero-logo :global(.eg2) { animation-delay: 0.6s; }
+	.hero-logo :global(.lt:nth-child(1)) { animation-delay: 0.4s; }
+	.hero-logo :global(.lt:nth-child(2)) { animation-delay: 1.05s; }
+	.hero-logo :global(.lt:nth-child(3)) { animation-delay: 0.25s; }
+	.hero-logo :global(.lt:nth-child(4)) { animation-delay: 0.75s; }
+	.hero-logo :global(.lt:nth-child(5)) { animation-delay: 0.15s; }
+	.hero-logo :global(.lt:nth-child(6)) { animation-delay: 0.95s; }
+
+	.hero-logo :global(:is(.tmg, .tg)) {
+		animation-duration: 0.6s;
+		animation-delay: 1.7s;
+	}
+
+	@keyframes hero-flicker {
+		0% { opacity: 0; }
+		8% { opacity: 1; }
+		12%, 30% { opacity: 0; }
+		34% { opacity: 0.8; }
+		38% { opacity: 0.1; }
+		55%, 64%, 100% { opacity: 1; }
+		60% { opacity: 0.3; }
+	}
+
+	/* Outline copies of the logo that ripple out as the curtain opens. */
+	.hero-logo .hero-ring {
+		position: absolute;
+		inset: 0;
+		height: 100%;
+		fill: none;
+		stroke: var(--color-accent);
+		stroke-width: 2px;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	/* vector-effect is not inherited, so it goes on the logo's paths (the
+	   rings are <use> copies of them) to keep the outline 2px at any scale. */
+	.hero-logo :global(path) {
+		vector-effect: non-scaling-stroke;
+	}
+
+	.hero[data-state='revealed'] .hero-ring {
+		animation: hero-ring 1.2s steps(10) forwards;
+	}
+
+	.hero-ring:nth-of-type(3) { animation-delay: 0.16s; }
+	.hero-ring:nth-of-type(4) { animation-delay: 0.32s; }
+
+	@keyframes hero-ring {
+		0% {
+			opacity: 0.95;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(3.4);
+		}
+	}
+
+	.hero-scroll {
+		position: absolute;
+		bottom: 1.5rem;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+		font-weight: 900;
+		text-shadow: 0 0 3px #000;
+		opacity: 0;
+		transition: opacity 0.4s steps(3) 0.9s;
+	}
+
+	.hero[data-state='revealed'] .hero-scroll {
+		opacity: 1;
+	}
+
+	.hero-scroll-arrow {
+		width: 1.5rem;
+		height: 1.5rem;
+		filter: drop-shadow(0 0 3px #000);
+		animation: hero-scroll-jump 3s ease-in-out infinite;
+		will-change: transform;
+	}
+
+	@keyframes hero-scroll-jump {
+		0%, 12%, 24%, 100% {
+			transform: translateY(0);
+		}
+		6%, 18% {
+			transform: translateY(10px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-scroll-arrow,
+		.hero-curtain::after,
+		.hero-logo :global(:is(.eg, .lt, .tmg, .tg)) {
+			animation: none;
+			opacity: 1;
+		}
+
+		.hero-ring {
+			display: none;
+		}
+
+		.hero-curtain {
+			mask: none;
+			transition: opacity 0.4s ease;
+		}
+
+		.hero[data-state='revealed'] .hero-curtain {
+			opacity: 0;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.hero-logo {
+			width: 80%;
+		}
+	}
+</style>

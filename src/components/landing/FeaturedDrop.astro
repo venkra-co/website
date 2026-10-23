@@ -1,0 +1,12 @@
+---
+import { featured } from '../../data/products';
+import ProductRow from '../catalogue/ProductRow.astro';
+---
+
+<section id="destacados" class="section" aria-labelledby="featured-title">
+	<header class="section-head">
+		<h2 id="featured-title" class="section-title">Destacados</h2>
+		<p class="eyebrow">Uno de cada línea</p>
+	</header>
+	<ProductRow products={featured} />
+</section>

@@ -1,0 +1,43 @@
+---
+import type { Product } from '../../data/products';
+import ProductTile from './ProductTile.astro';
+
+interface Props {
+	products: readonly Product[];
+}
+
+const { products } = Astro.props;
+---
+
+<ul class="row">
+	{products.map((product) => (
+		<li><ProductTile product={product} /></li>
+	))}
+</ul>
+
+<style>
+	.row {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	li {
+		aspect-ratio: 4 / 5;
+	}
+
+	@media (max-width: 760px) {
+		.row {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		/* With an odd count, the last tile fills the row instead of leaving a hole. */
+		li:last-child:nth-child(odd) {
+			grid-column: span 2;
+			aspect-ratio: 8 / 5;
+		}
+	}
+</style>

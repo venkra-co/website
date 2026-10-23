@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryIndex from '../../components/catalogue/CategoryIndex.astro';
+import ProductWall from '../../components/catalogue/ProductWall.astro';
+import { categories, type Category } from '../../data/categories';
+import { formatPrice } from '../../lib/format';
+import { cardUrl } from '../../lib/og';
+import { categoryDescription } from '../../lib/seo';
+
+export const getStaticPaths = () => categories.map((category) => ({ params: { category: category.id }, props: { category } }));
+
+interface Props {
+	category: Category;
+}
+
+const { category } = Astro.props;
+---
+
+<BaseLayout
+	title={`${category.name} · Venkra`}
+	description={categoryDescription(category)}
+	image={cardUrl(`catalogo/${category.id}`)}
+>
+	<main class="catalogue">
+		<CategoryIndex categories={categories} current={category} />
+		<div>
+			<header class="section-head">
+				<h1 class="section-title">{category.name}</h1>
+				<p class="eyebrow">{category.products.length} prendas · Desde {formatPrice(category.fromPrice)}</p>
+			</header>
+			<ProductWall products={category.products} />
+		</div>
+	</main>
+</BaseLayout>
+
+<style>
+	/* The wall runs to the right edge on desktop and edge to edge on phones. */
+	.catalogue {
+		display: grid;
+		grid-template-columns: 16rem minmax(0, 1fr);
+		gap: 2rem;
+		padding: calc(var(--header-height) + clamp(2rem, 4vw, 3rem)) 0 clamp(4rem, 8vw, 6rem) var(--page-gutter);
+	}
+
+	.section-head {
+		padding-right: var(--page-gutter);
+	}
+
+	@media (max-width: 760px) {
+		.catalogue {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.5rem;
+			padding-left: 0;
+		}
+
+		.catalogue > :global(.index),
+		.section-head {
+			margin-inline: var(--page-gutter);
+			padding-right: 0;
+		}
+	}
+</style>

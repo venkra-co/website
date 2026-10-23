@@ -1,0 +1,46 @@
+---
+interface Props {
+	/** Every step but the last links to its page; the last is the current page. */
+	items: { label: string; href?: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="crumbs" aria-label="Ruta">
+	<ol>
+		{items.map((item) =>
+			item.href ? <li><a href={item.href}>{item.label}</a></li> : <li aria-current="page">{item.label}</li>,
+		)}
+	</ol>
+</nav>
+
+<style>
+	ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		color: var(--color-muted);
+		font: 700 0.75rem/1.4 var(--font-body);
+		letter-spacing: 0.25em;
+		text-transform: uppercase;
+	}
+
+	li + li::before {
+		content: '/';
+		margin-right: 0.5rem;
+	}
+
+	a {
+		color: var(--color-accent);
+		text-decoration: none;
+	}
+
+	a:hover,
+	a:focus-visible {
+		color: var(--color-fg);
+	}
+</style>

@@ -1,0 +1,392 @@
+---
+import Eagle from '../../assets/eagle.svg';
+import Instagram from '../../assets/icons/instagram.svg';
+import WhatsApp from '../../assets/icons/whatsapp.svg';
+import { site } from '../../data/site';
+import { padIndex } from '../../lib/format';
+
+const { links } = site;
+const menuLinks = [
+	...links,
+	{ label: 'Instagram', href: site.instagram, external: true },
+	{ label: 'Escríbenos', href: site.whatsapp, external: true, accent: true },
+];
+// Each tag's box flickers on after its own delay, in a scattered order like the logo's letters.
+const flicker = (i: number) => `--delay:${[0.12, 0, 0.2, 0.06][i % 4]}s`;
+---
+
+<header class="site-header" transition:persist>
+	<div class="bar">
+		<nav class="nav" aria-label="Principal">
+			{links.map((link, i) => (
+				<a class="stamp" href={link.href} style={flicker(i)}><span class="num">{padIndex(i + 1)}</span>{link.label}</a>
+			))}
+		</nav>
+		<button class="menu-button stamp" type="button" aria-expanded="false" aria-controls="site-menu">
+			<span class="menu-bars" aria-hidden="true"></span>
+			<span class="menu-label">Menú</span>
+		</button>
+		<a class="brand" href="/" aria-label="Venkra, inicio">
+			<Eagle aria-hidden="true" />
+		</a>
+		<div class="actions">
+			<a class="stamp icon" style={flicker(links.length)} href={site.instagram} target="_blank" rel="noopener" aria-label="Instagram">
+				<Instagram aria-hidden="true" />
+			</a>
+			<a class="stamp cta" style={flicker(links.length + 1)} href={site.whatsapp} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+				<WhatsApp aria-hidden="true" />
+				<span>Escríbenos</span>
+			</a>
+		</div>
+	</div>
+	<div class="menu" id="site-menu" hidden>
+		<nav aria-label="Menú">
+			{menuLinks.map((link, i) => (
+				<a
+					class:list={['menu-link', { accent: link.accent }]}
+					href={link.href}
+					target={link.external ? '_blank' : undefined}
+					rel={link.external ? 'noopener' : undefined}
+					style={`--i:${i}`}
+				><span class="num">{padIndex(i + 1)}</span>{link.label}</a>
+			))}
+		</nav>
+	</div>
+</header>
+
+<script>
+	// The header persists across client navigations, so this runs once and
+	// re-reads each new page on astro:page-load.
+	const header = document.querySelector<HTMLElement>('.site-header')!;
+	let logo: Element | null = null;
+
+	// Past this point the bar fades in and the tags flicker on their boxes.
+	const SOLID_AT = 60;
+
+	// The header's eagle flickers on as the hero logo's eagle slides under the
+	// header, and off as it comes back out. The eagle is the top part of the
+	// logo, by the logo file's viewBox.
+	const EAGLE_BOTTOM = 702 / 1841;
+	let eagleUnder = 0;
+	const measure = () => {
+		if (!logo) return;
+		const box = logo.getBoundingClientRect();
+		eagleUnder = box.top + scrollY + box.height * EAGLE_BOTTOM - header.offsetHeight;
+	};
+
+	// Scrolling only compares numbers and writes what changed.
+	const state: Record<string, string> = {};
+	const set = (key: string, on: boolean) => {
+		const value = String(on);
+		if (state[key] !== value) state[key] = header.dataset[key] = value;
+	};
+	const update = () => {
+		queued = false;
+		set('solid', scrollY > SOLID_AT);
+		set('eagle', !logo || scrollY > eagleUnder);
+	};
+
+	let queued = false;
+	const queue = () => queued || ((queued = true), requestAnimationFrame(update));
+	addEventListener('scroll', queue, { passive: true });
+	new ResizeObserver(() => (measure(), queue())).observe(document.documentElement);
+
+	const button = header.querySelector<HTMLButtonElement>('.menu-button')!;
+	const menu = header.querySelector<HTMLElement>('.menu')!;
+	const setOpen = (open: boolean) => {
+		button.setAttribute('aria-expanded', String(open));
+		menu.hidden = !open;
+		header.dataset.menuOpen = String(open);
+		document.documentElement.style.overflow = open ? 'hidden' : '';
+	};
+	button.addEventListener('click', () => setOpen(menu.hidden));
+	menu.addEventListener('click', (event) => (event.target as Element).closest('a') && setOpen(false));
+	addEventListener('keydown', (event) => event.key === 'Escape' && setOpen(false));
+
+	// A page names its big logo, like the hero's, in data-hero-logo on <body>.
+	document.addEventListener('astro:page-load', () => {
+		const selector = document.body.dataset.heroLogo;
+		logo = selector ? document.querySelector(selector) : null;
+		setOpen(false);
+		measure();
+		update();
+	});
+</script>
+
+<style>
+	.site-header {
+		--brand-height: 2.2rem;
+		position: fixed;
+		inset: 0 0 auto;
+		z-index: 50;
+		height: var(--header-height);
+		color: var(--color-fg);
+	}
+
+	/* A soft scrim keeps the tags readable over the video, then a solid bar fades in. */
+	.site-header::before,
+	.site-header::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+	}
+
+	.site-header::before {
+		height: 160%;
+		background: linear-gradient(rgb(0 0 0 / 0.4), transparent);
+	}
+
+	.site-header::after {
+		background: var(--color-bg);
+		border-bottom: 1px solid var(--color-line);
+		opacity: 0;
+	}
+
+	/* Only opacity changes, so the fade runs on the compositor. */
+	.site-header::before,
+	.site-header::after {
+		transition: opacity 0.35s var(--ease-out);
+	}
+
+	.site-header[data-solid='true']::before {
+		opacity: 0;
+	}
+
+	.site-header[data-solid='true']::after {
+		opacity: 1;
+	}
+
+	/* Over the open menu, so the menu's close button stays on top. */
+	.site-header[data-menu-open='true'] {
+		z-index: 70;
+	}
+
+	.bar {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-areas: 'nav actions';
+		position: relative;
+		align-items: center;
+		gap: 1rem;
+		height: 100%;
+		max-width: var(--page-max);
+		margin: 0 auto;
+		padding: 0 var(--page-gutter);
+		box-sizing: border-box;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	:is(a, button):focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	.nav {
+		grid-area: nav;
+		display: flex;
+	}
+
+	/* The stamps (global.css) sit edge to edge. Over the hero they are bare
+	   text, so the first look stays clean; once the bar has faded in, their
+	   boxes flicker on like the logo in the intro. */
+	.stamp {
+		--on: 0;
+		margin-left: -1px;
+	}
+
+	.site-header[data-solid='true'] .stamp {
+		--on: 1;
+		animation: stamp-flicker 0.6s steps(1) both;
+		animation-delay: var(--delay, 0s);
+	}
+
+	@keyframes stamp-flicker {
+		0% { --on: 0; }
+		8% { --on: 1; }
+		12%, 30% { --on: 0; }
+		34% { --on: 0.8; }
+		38% { --on: 0.1; }
+		55%, 64%, 100% { --on: 1; }
+		60% { --on: 0.3; }
+	}
+
+	.site-header:not([data-solid='true']) .stamp:hover {
+		background: transparent;
+		border-color: transparent;
+		color: var(--color-accent);
+	}
+
+	/* The eagle link, pinned to the exact centre of the bar, outside the grid. On the landing
+	   page it flickers on once the hero logo's eagle has scrolled under the header. */
+	.brand {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: calc(var(--brand-height) * 1331 / 702);
+		height: var(--brand-height);
+		translate: -50% -50%;
+	}
+
+	.brand :global(svg) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		filter: drop-shadow(0 0 5px #000);
+	}
+
+	/* Like the tags, the eagle flickers on with the logo's intro timing. */
+	.site-header:not([data-eagle='true']) .brand {
+		visibility: hidden;
+	}
+
+	.site-header[data-eagle='true'] .brand {
+		animation: eagle-flicker 0.6s steps(1) both;
+	}
+
+	@keyframes eagle-flicker {
+		0% { opacity: 0; }
+		8% { opacity: 1; }
+		12%, 30% { opacity: 0; }
+		34% { opacity: 0.8; }
+		38% { opacity: 0.1; }
+		55%, 64%, 100% { opacity: 1; }
+		60% { opacity: 0.3; }
+	}
+
+	.actions {
+		grid-area: actions;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.menu-button {
+		grid-area: nav;
+		justify-self: start;
+		display: none;
+		margin: 0;
+	}
+
+	.menu-bars,
+	.menu-bars::before {
+		display: block;
+		width: 1.1rem;
+		height: 2px;
+		background: currentColor;
+		transition: transform 0.2s steps(3);
+	}
+
+	.menu-bars {
+		position: relative;
+		transform: translateY(-3px);
+	}
+
+	.menu-bars::before {
+		content: '';
+		position: absolute;
+		top: 6px;
+	}
+
+	[data-menu-open='true'] .menu-bars {
+		transform: rotate(45deg);
+	}
+
+	[data-menu-open='true'] .menu-bars::before {
+		transform: translateY(-6px) rotate(-90deg);
+	}
+
+	/* Full screen menu on phones: huge condensed links that step in one by one. */
+	.menu {
+		position: fixed;
+		inset: 0;
+		z-index: -2;
+		display: flex;
+		align-items: flex-end;
+		padding: 7rem var(--page-gutter) 3rem;
+		background: var(--color-bg);
+	}
+
+	.menu[hidden] {
+		display: none;
+	}
+
+	.menu nav {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.menu-link {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid var(--color-line);
+		font: 800 clamp(2.25rem, 11.5vw, 4.5rem)/0.95 var(--font-display);
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		animation: menu-in 0.3s steps(3) both;
+		animation-delay: calc(var(--i) * 70ms);
+	}
+
+	.menu-link .num {
+		font-size: 0.8rem;
+	}
+
+	.menu-link.accent {
+		color: var(--color-accent);
+	}
+
+	@keyframes menu-in {
+		from {
+			opacity: 0;
+			transform: translateY(1rem);
+		}
+	}
+
+	@media (max-width: 760px) {
+		.site-header {
+			--brand-height: 1.8rem;
+		}
+
+		.nav,
+		.icon,
+		.cta span {
+			display: none;
+		}
+
+		.menu-button {
+			display: flex;
+		}
+
+		.cta {
+			width: 2.4rem;
+			padding: 0;
+		}
+	}
+
+	@media (max-width: 400px) {
+		.menu-label {
+			display: none;
+		}
+
+		.menu-button {
+			width: 2.4rem;
+			padding: 0;
+			justify-content: center;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.menu-link,
+		.site-header[data-eagle='true'] .brand,
+		.site-header[data-solid='true'] .stamp {
+			animation: none;
+		}
+	}
+</style>

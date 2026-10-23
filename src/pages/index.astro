@@ -1,18 +1,30 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/landing/Hero.astro';
+import CatalogueMosaic from '../components/landing/CatalogueMosaic.astro';
+import FeaturedDrop from '../components/landing/FeaturedDrop.astro';
+import Manifesto from '../components/landing/Manifesto.astro';
+import Craft from '../components/landing/Craft.astro';
+import HowToBuy from '../components/landing/HowToBuy.astro';
+import InstagramStrip from '../components/landing/InstagramStrip.astro';
+import Contact from '../components/landing/Contact.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { categories } from '../data/categories';
+import { organizationSchema, websiteSchema } from '../lib/seo';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-		<link rel="manifest" href="/site.webmanifest" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Venkra · Camisetas oversized y streetwear en Colombia" heroLogo=".hero-logo > svg">
+	<JsonLd slot="head" data={organizationSchema(Astro.site!)} />
+	<JsonLd slot="head" data={websiteSchema(Astro.site!)} />
+	<link slot="head" rel="preload" href="/hero/poster.webp" as="image" type="image/webp" fetchpriority="high" />
+	<main>
+		<Hero />
+		<CatalogueMosaic categories={categories} />
+		<FeaturedDrop />
+		<Manifesto />
+		<Craft />
+		<HowToBuy />
+		<InstagramStrip />
+		<Contact />
+	</main>
+</BaseLayout>

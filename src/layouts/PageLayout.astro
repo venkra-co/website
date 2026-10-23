@@ -1,0 +1,55 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	eyebrow?: string;
+}
+
+const { title, description, eyebrow } = Astro.props;
+---
+
+<BaseLayout title={`${title} · Venkra`} description={description}>
+	<main class="section page">
+		<header class="section-head">
+			<h1 class="section-title">{title}</h1>
+			{eyebrow && <p class="eyebrow">{eyebrow}</p>}
+		</header>
+		<slot />
+	</main>
+</BaseLayout>
+
+<style>
+	/* Clear the fixed header, since these pages have no hero under it. */
+	.page {
+		padding-top: calc(var(--header-height) + clamp(3rem, 6vw, 5rem));
+	}
+
+	.page :global(:is(p, ul, ol)) {
+		max-width: 40rem;
+		margin: 0 0 1.5rem;
+		color: var(--color-muted);
+		font-size: 1.125rem;
+		line-height: 1.7;
+	}
+
+	.page :global(h2) {
+		margin: 3rem 0 1rem;
+		font: 900 1.75rem/0.95 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.page :global(:is(p, li) a) {
+		color: var(--color-accent);
+	}
+
+	.page :global(strong) {
+		color: var(--color-fg);
+	}
+
+	.page :global(.stamp) {
+		margin-top: 1rem;
+	}
+</style>

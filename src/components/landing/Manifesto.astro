@@ -1,0 +1,48 @@
+<section id="manifiesto" class="section manifesto" aria-label="Manifiesto">
+	<blockquote>
+		<p class="quote">Incluso cuando el viento está en su contra, sabe que es el momento perfecto para abrir sus alas.</p>
+	</blockquote>
+	<div class="aside">
+		<p>VENKRA vive los planes que se cruzan en su camino y disfruta de los detalles que se esconden en cada rincón de la ciudad.</p>
+		<a class="stamp" href="/nosotros">Conoce la marca</a>
+	</div>
+</section>
+
+<style>
+	.manifesto {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+		align-items: end;
+		gap: 2rem 4rem;
+		border-top: 1px solid var(--color-line);
+	}
+
+	blockquote {
+		margin: 0;
+	}
+
+	.quote {
+		margin: 0;
+		font: 900 clamp(2.25rem, 6vw, 5.5rem)/0.92 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.aside {
+		display: grid;
+		justify-items: start;
+		gap: 1.5rem;
+	}
+
+	.aside p {
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.6;
+	}
+
+	@media (max-width: 760px) {
+		.manifesto {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

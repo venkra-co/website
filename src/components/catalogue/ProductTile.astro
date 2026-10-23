@@ -1,0 +1,51 @@
+---
+import type { Product } from '../../data/products';
+import { formatPrice } from '../../lib/format';
+
+interface Props {
+	product: Product;
+}
+
+const { product } = Astro.props;
+---
+
+<a class="tile" href={`/catalogo/${product.category}/${product.id}`}>
+	<img src={product.images[0]} alt="" loading="lazy" decoding="async" />
+	<span class="tag">{product.name}<span>{formatPrice(product.price)}</span></span>
+</a>
+
+<style>
+	.tag {
+		position: absolute;
+		left: 0.75rem;
+		bottom: 0.75rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		min-height: 2.1rem;
+		padding: 0.4rem 0.75rem;
+		box-sizing: border-box;
+		background: var(--color-bg);
+		font: 700 0.8rem/1.1 var(--font-display);
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.tag span {
+		color: var(--color-accent);
+		white-space: nowrap;
+	}
+
+	@media (max-width: 760px) {
+		.tag {
+			left: 0.5rem;
+			bottom: 0.5rem;
+			font-size: 0.7rem;
+		}
+
+		/* Phones show the name only; the price is on the product page. */
+		.tag span {
+			display: none;
+		}
+	}
+</style>

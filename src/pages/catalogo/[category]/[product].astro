@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../components/catalogue/Breadcrumbs.astro';
+import ProductCover from '../../../components/catalogue/ProductCover.astro';
+import ProductRow from '../../../components/catalogue/ProductRow.astro';
+import JsonLd from '../../../components/seo/JsonLd.astro';
+import { products, type Product } from '../../../data/products';
+import { cardUrl } from '../../../lib/og';
+import { breadcrumbSchema, categoryOf, productDescription, productSchema, productTitle } from '../../../lib/seo';
+
+export const getStaticPaths = () =>
+	products.map((product) => ({ params: { category: product.category, product: product.id }, props: { product } }));
+
+interface Props {
+	product: Product;
+}
+
+const { product } = Astro.props;
+const category = categoryOf(product);
+const crumbs = [
+	{ label: 'Catálogo', href: '/catalogo' },
+	{ label: category.name, href: `/catalogo/${category.id}` },
+	{ label: product.name },
+];
+const more = category.products.filter((other) => other.id !== product.id).slice(0, 4);
+---
+
+<BaseLayout
+	title={`${productTitle(product)} · Venkra`}
+	description={productDescription(product)}
+	image={cardUrl(`catalogo/${category.id}/${product.id}`)}
+>
+	<JsonLd slot="head" data={productSchema(product, Astro.site!)} />
+	<JsonLd slot="head" data={breadcrumbSchema(crumbs, Astro.url)} />
+	<main class="product">
+		<div class="crumbs">
+			<Breadcrumbs items={crumbs} />
+		</div>
+		<ProductCover product={product} category={category} />
+		{more.length > 0 && (
+			<section class="section" aria-labelledby="more-title">
+				<header class="section-head">
+					<h2 id="more-title" class="more-title">Más de {category.name}</h2>
+					<a class="eyebrow" href={`/catalogo/${category.id}`}>Ver todo</a>
+				</header>
+				<ProductRow products={more} />
+			</section>
+		)}
+	</main>
+</BaseLayout>
+
+<style>
+	.product {
+		padding-top: var(--header-height);
+	}
+
+	.crumbs {
+		padding: 1rem var(--page-gutter);
+	}
+
+	.more-title {
+		margin: 0;
+		font: 900 clamp(2rem, 4vw, 2.5rem)/0.9 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.eyebrow {
+		text-decoration: none;
+	}
+</style>
