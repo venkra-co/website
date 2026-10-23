@@ -4,7 +4,7 @@ import BaseLayout from './BaseLayout.astro';
 interface Props {
 	title: string;
 	description?: string;
-	eyebrow?: string;
+	eyebrow?: string | null;
 }
 
 const { title, description, eyebrow } = Astro.props;

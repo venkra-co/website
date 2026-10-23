@@ -11,9 +11,12 @@ import Contact from '../components/landing/Contact.astro';
 import JsonLd from '../components/seo/JsonLd.astro';
 import { categories } from '../data/categories';
 import { organizationSchema, websiteSchema } from '../lib/seo';
+import { page } from '../data/cms';
+
+const { title, description } = page('inicio');
 ---
 
-<BaseLayout title="Venkra · Camisetas oversized y streetwear en Colombia" heroLogo=".hero-logo > svg">
+<BaseLayout title={title} description={description} heroLogo=".hero-logo > svg">
 	<JsonLd slot="head" data={organizationSchema(Astro.site!)} />
 	<JsonLd slot="head" data={websiteSchema(Astro.site!)} />
 	<link slot="head" rel="preload" href="/hero/poster.webp" as="image" type="image/webp" fetchpriority="high" />

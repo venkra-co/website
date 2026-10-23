@@ -1,27 +1,11 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import { site } from '../data/site';
+import { page } from '../data/cms';
+import { markdown } from '../lib/markdown';
+
+const { title, description, eyebrow, body } = page('privacidad');
 ---
 
-<PageLayout
-	title="Privacidad"
-	description="Cómo Venkra usa y protege los datos que nos compartes al hacer un pedido."
-	eyebrow="Tus datos"
->
-	<p>
-		Cuidamos tus datos personales de acuerdo con la Ley 1581 de 2012 y sus decretos reglamentarios. Este sitio no
-		tiene formularios ni cuentas de usuario: solo recibimos los datos que tú nos das al escribirnos.
-	</p>
-
-	<h2>Qué datos usamos</h2>
-	<p>
-		Tu nombre, teléfono, dirección y ciudad de entrega, únicamente para atender tu pedido, coordinar el envío y
-		responder tus preguntas. No los vendemos ni los compartimos, salvo con la transportadora que entrega tu pedido.
-	</p>
-
-	<h2>Tus derechos</h2>
-	<p>
-		Puedes conocer, actualizar, rectificar y pedir que eliminemos tus datos, o revocar tu autorización, en
-		cualquier momento. Escríbenos por <a href={site.whatsapp} target="_blank" rel="noopener">WhatsApp</a> al {site.phone}.
-	</p>
+<PageLayout title={title} description={description} eyebrow={eyebrow}>
+	<Fragment set:html={markdown(body ?? '')} />
 </PageLayout>
