@@ -1,0 +1,92 @@
+---
+import type { Category } from '../../data/categories';
+
+interface Props {
+	category: Category;
+}
+
+const { category } = Astro.props;
+const titleId = `${category.id}-dialog-title`;
+---
+
+{/* A line's full description, opened from its block on the catalogue. */}
+<dialog class="dialog" aria-labelledby={titleId}>
+	<img class="photo" src={category.image} alt="" loading="lazy" decoding="async" />
+	<div class="body">
+		<form method="dialog">
+			<button class="stamp icon close" aria-label="Cerrar">✕</button>
+		</form>
+		<h2 id={titleId} class="name">{category.name}</h2>
+		<p class="description">{category.description}</p>
+		<a class="stamp cta" href={`/catalogo/${category.id}`}>Ver {category.name}</a>
+	</div>
+</dialog>
+
+<style>
+	.dialog {
+		display: none;
+		grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+		width: min(64rem, calc(100vw - 2 * var(--page-gutter)));
+		max-height: calc(100svh - 2 * var(--page-gutter));
+		padding: 0;
+		border: 0;
+		background: var(--color-surface);
+		color: var(--color-fg);
+	}
+
+	.dialog[open] {
+		display: grid;
+	}
+
+	.dialog::backdrop {
+		background: rgb(0 0 0 / 0.7);
+	}
+
+	/* People are framed from the head down, so the crop keeps the top. */
+	.photo {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: top;
+	}
+
+	.body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.25rem;
+		padding: clamp(1.5rem, 4vw, 3rem);
+		overflow-y: auto;
+	}
+
+	form {
+		align-self: flex-end;
+		margin-bottom: -1rem;
+	}
+
+	.name {
+		margin: 0;
+		font: 900 clamp(2.5rem, 5vw, 4.5rem)/0.85 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	/* Keeps the description's single line breaks, such as its "•" lists. */
+	.description {
+		max-width: 38rem;
+		margin: 0;
+		line-height: 1.6;
+		white-space: pre-line;
+	}
+
+	.cta {
+		margin-top: 0.5rem;
+	}
+
+	@media (max-width: 760px) {
+		.dialog {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: 12rem minmax(0, 1fr);
+		}
+	}
+</style>
