@@ -18,7 +18,7 @@ const { images, name } = Astro.props;
 		<>
 			<button class="stamp icon arrow prev" type="button" aria-label="Foto anterior" data-step="-1">←</button>
 			<button class="stamp icon arrow next" type="button" aria-label="Foto siguiente" data-step="1">→</button>
-			<p class="count" data-gallery-count></p>
+			<p class="count" data-gallery-count>1 / {images.length}</p>
 		</>
 	)}
 </dialog>
@@ -27,37 +27,40 @@ const { images, name } = Astro.props;
 	// Listening on the document once keeps working across client navigations.
 	// The arrows and the arrow keys step through the photos, wrapping around;
 	// a click on the backdrop closes the gallery.
-	let gallery: HTMLDialogElement | null = null;
 	let images: string[] = [];
 	let index = 0;
 
-	const show = (next: number) => {
+	const show = (gallery: HTMLDialogElement, next: number) => {
 		index = (next + images.length) % images.length;
-		gallery!.querySelector<HTMLImageElement>('[data-gallery-photo]')!.src = images[index];
-		const count = gallery!.querySelector('[data-gallery-count]');
+		gallery.querySelector<HTMLImageElement>('[data-gallery-photo]')!.src = images[index];
+		const count = gallery.querySelector('[data-gallery-count]');
 		if (count) count.textContent = `${index + 1} / ${images.length}`;
 	};
 
 	document.addEventListener('click', (event) => {
 		const target = event.target as Element;
 		const opener = target.closest<HTMLElement>('[data-open-gallery]');
+		const gallery = opener
+			? document.querySelector<HTMLDialogElement>('[data-gallery]')
+			: target.closest<HTMLDialogElement>('dialog[data-gallery]');
+		if (!gallery) return;
 		if (opener) {
-			gallery = document.querySelector<HTMLDialogElement>('[data-gallery]');
-			images = JSON.parse(gallery!.dataset.gallery!);
-			show(Math.max(0, images.indexOf(opener.querySelector('img')!.getAttribute('src')!)));
-			gallery!.showModal();
+			images = JSON.parse(gallery.dataset.gallery!);
+			show(gallery, Math.max(0, images.indexOf(opener.querySelector('img')!.getAttribute('src')!)));
+			gallery.showModal();
 		} else if (target === gallery) {
 			gallery.close();
 		} else {
-			const step = target.closest<HTMLElement>('[data-gallery] [data-step]');
-			if (step) show(index + Number(step.dataset.step));
+			const step = target.closest<HTMLElement>('[data-step]');
+			if (step) show(gallery, index + Number(step.dataset.step));
 		}
 	});
 
 	document.addEventListener('keydown', (event) => {
-		if (!gallery?.open || images.length < 2) return;
-		if (event.key === 'ArrowLeft') show(index - 1);
-		if (event.key === 'ArrowRight') show(index + 1);
+		const gallery = document.querySelector<HTMLDialogElement>('[data-gallery][open]');
+		if (!gallery || images.length < 2) return;
+		if (event.key === 'ArrowLeft') show(gallery, index - 1);
+		if (event.key === 'ArrowRight') show(gallery, index + 1);
 	});
 </script>
 
@@ -131,6 +134,8 @@ const { images, name } = Astro.props;
 		pointer-events: none;
 	}
 
+	/* On phones the arrows sit at the bottom beside the counter, dropped 0.75rem
+	   so their middle lands close to its line while staying on screen. */
 	@media (max-width: 760px) {
 		.arrow {
 			top: auto;
