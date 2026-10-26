@@ -3,7 +3,6 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../../components/catalogue/Breadcrumbs.astro';
 import ProductCover from '../../../components/catalogue/ProductCover.astro';
 import ProductRow from '../../../components/catalogue/ProductRow.astro';
-import ProductStory from '../../../components/catalogue/ProductStory.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
 import { products, type Product } from '../../../data/products';
 import { cardUrl } from '../../../lib/og';
@@ -38,7 +37,6 @@ const more = category.products.filter((other) => other.id !== product.id).slice(
 			<Breadcrumbs items={crumbs} />
 		</div>
 		<ProductCover product={product} category={category} />
-		<ProductStory product={product} />
 		{more.length > 0 && (
 			<section class="section" aria-labelledby="more-title">
 				<header class="section-head">
