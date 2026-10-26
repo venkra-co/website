@@ -1,6 +1,7 @@
 ---
 import type { Category } from '../../data/categories';
 import { formatPrice, padIndex } from '../../lib/format';
+import CategoryDialog from './CategoryDialog.astro';
 
 interface Props {
 	category: Category;
@@ -20,7 +21,8 @@ const href = `/catalogo/${category.id}`;
 	<div class="body">
 		<p class="eyebrow">Línea {padIndex(index)} · Desde {formatPrice(category.fromPrice)}</p>
 		<h2 id={`${category.id}-title`} class="name"><a href={href}>{category.name}</a></h2>
-		<p class="description">{category.description}</p>
+		<p class="description" data-description>{category.description}</p>
+		<button class="more" type="button" data-more hidden>Leer más</button>
 		<ul class="list">
 			{category.products.map((product) => (
 				<li>
@@ -33,7 +35,26 @@ const href = `/catalogo/${category.id}`;
 		</ul>
 		<a class="stamp cta" href={href}>Ver {category.name}</a>
 	</div>
+	<CategoryDialog category={category} index={index} />
 </article>
+
+<script>
+	// A description cut short by its line clamp offers the full one in its
+	// line's dialog. Listening on the document keeps working across client navigations.
+	const mark = () =>
+		document.querySelectorAll<HTMLElement>('[data-description]').forEach((description) => {
+			const clamped = description.scrollHeight > description.clientHeight;
+			description.dataset.clamped = String(clamped);
+			description.parentElement!.querySelector<HTMLElement>('[data-more]')!.hidden = !clamped;
+		});
+	document.addEventListener('astro:page-load', mark);
+	addEventListener('resize', mark);
+
+	document.addEventListener('click', (event) => {
+		const target = (event.target as Element).closest('[data-more], [data-description][data-clamped="true"]');
+		target?.closest('.block')?.querySelector('dialog')?.showModal();
+	});
+</script>
 
 <style>
 	.block {
@@ -47,7 +68,13 @@ const href = `/catalogo/${category.id}`;
 		order: 1;
 	}
 
+	/* The photo keeps its shape and stays in view beside a longer text, rather
+	   than stretching to the text's height and widening over it. */
 	.cover {
+		position: sticky;
+		top: var(--header-height);
+		align-self: start;
+		height: auto;
 		aspect-ratio: 4 / 5;
 	}
 
@@ -87,11 +114,35 @@ const href = `/catalogo/${category.id}`;
 		color: var(--color-accent);
 	}
 
+	/* Long descriptions stop at four lines; the rest is in the dialog. */
 	.description {
+		display: -webkit-box;
 		max-width: 32rem;
 		margin: 0;
+		overflow: hidden;
 		color: var(--color-muted);
 		line-height: 1.6;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 4;
+		line-clamp: 4;
+	}
+
+	.description[data-clamped='true'] {
+		cursor: pointer;
+	}
+
+	.more {
+		margin-top: -1rem;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--color-accent);
+		font: 700 0.8rem/1 var(--font-body);
+		letter-spacing: 0.2em;
+		text-decoration: underline;
+		text-underline-offset: 0.3em;
+		text-transform: uppercase;
+		cursor: pointer;
 	}
 
 	.list {
@@ -140,7 +191,7 @@ const href = `/catalogo/${category.id}`;
 		}
 
 		.cover {
-			aspect-ratio: 4 / 3;
+			position: relative;
 		}
 	}
 </style>
