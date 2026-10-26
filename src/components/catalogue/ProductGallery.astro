@@ -1,0 +1,146 @@
+---
+interface Props {
+	images: string[];
+	name: string;
+}
+
+const { images, name } = Astro.props;
+---
+
+{/* A product's photos, whole and large over a black backdrop. ProductCover's
+    photo opens it on the photo it shows. */}
+<dialog class="gallery" aria-label={`Fotos de ${name}`} data-gallery={JSON.stringify(images)}>
+	<img class="photo" src={images[0]} alt={name} data-gallery-photo />
+	<form method="dialog">
+		<button class="stamp icon close" aria-label="Cerrar">✕</button>
+	</form>
+	{images.length > 1 && (
+		<>
+			<button class="stamp icon arrow prev" type="button" aria-label="Foto anterior" data-step="-1">←</button>
+			<button class="stamp icon arrow next" type="button" aria-label="Foto siguiente" data-step="1">→</button>
+			<p class="count" data-gallery-count>1 / {images.length}</p>
+		</>
+	)}
+</dialog>
+
+<script>
+	// Listening on the document once keeps working across client navigations.
+	// The arrows and the arrow keys step through the photos, wrapping around;
+	// a click on the backdrop closes the gallery.
+	let images: string[] = [];
+	let index = 0;
+
+	const show = (gallery: HTMLDialogElement, next: number) => {
+		index = (next + images.length) % images.length;
+		gallery.querySelector<HTMLImageElement>('[data-gallery-photo]')!.src = images[index];
+		const count = gallery.querySelector('[data-gallery-count]');
+		if (count) count.textContent = `${index + 1} / ${images.length}`;
+	};
+
+	document.addEventListener('click', (event) => {
+		const target = event.target as Element;
+		const opener = target.closest<HTMLElement>('[data-open-gallery]');
+		const gallery = opener
+			? document.querySelector<HTMLDialogElement>('[data-gallery]')
+			: target.closest<HTMLDialogElement>('dialog[data-gallery]');
+		if (!gallery) return;
+		if (opener) {
+			images = JSON.parse(gallery.dataset.gallery!);
+			show(gallery, Math.max(0, images.indexOf(opener.querySelector('img')!.getAttribute('src')!)));
+			gallery.showModal();
+		} else if (target === gallery) {
+			gallery.close();
+		} else {
+			const step = target.closest<HTMLElement>('[data-step]');
+			if (step) show(gallery, index + Number(step.dataset.step));
+		}
+	});
+
+	document.addEventListener('keydown', (event) => {
+		const gallery = document.querySelector<HTMLDialogElement>('[data-gallery][open]');
+		if (!gallery || images.length < 2) return;
+		if (event.key === 'ArrowLeft') show(gallery, index - 1);
+		if (event.key === 'ArrowRight') show(gallery, index + 1);
+	});
+</script>
+
+<style>
+	.gallery {
+		width: 100vw;
+		max-width: none;
+		height: 100svh;
+		max-height: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #fff;
+	}
+
+	.gallery::backdrop {
+		background: #000;
+	}
+
+	/* The whole photo, as large as the screen allows. Clicks around it reach
+	   the dialog, which closes it. */
+	.photo {
+		position: absolute;
+		inset: 0;
+		width: auto;
+		height: auto;
+		max-width: calc(100% - 2 * var(--page-gutter));
+		max-height: calc(100% - 7rem);
+		margin: auto;
+		object-fit: contain;
+	}
+
+	/* White controls on black, whatever the page's colours. */
+	.stamp {
+		--color-fg: #fff;
+		--color-bg: #000;
+		--color-line-strong: rgb(255 255 255 / 0.5);
+		position: absolute;
+		background: rgb(0 0 0 / 0.5);
+	}
+
+	.close {
+		top: var(--page-gutter);
+		right: var(--page-gutter);
+	}
+
+	.arrow {
+		top: 50%;
+		translate: 0 -50%;
+		--stamp-size: 3rem;
+	}
+
+	.prev {
+		left: var(--page-gutter);
+	}
+
+	.next {
+		right: var(--page-gutter);
+	}
+
+	.count {
+		position: absolute;
+		bottom: var(--page-gutter);
+		left: 0;
+		right: 0;
+		margin: 0;
+		font: 700 0.8rem/1 var(--font-body);
+		letter-spacing: 0.3em;
+		text-align: center;
+		pointer-events: none;
+	}
+
+	/* On phones the arrows sit at the bottom beside the counter, dropped 0.75rem
+	   so their middle lands close to its line while staying on screen. */
+	@media (max-width: 760px) {
+		.arrow {
+			top: auto;
+			bottom: calc(var(--page-gutter) - 0.75rem);
+			translate: none;
+		}
+	}
+</style>
