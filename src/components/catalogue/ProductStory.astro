@@ -1,0 +1,158 @@
+---
+import type { Product } from '../../data/products';
+import { storyOf } from '../../data/productStory';
+import { padIndex } from '../../lib/format';
+
+interface Props {
+	product: Product;
+}
+
+const { care, materials, history, sizes } = storyOf(Astro.props.product);
+---
+
+{/* What else there is to know about a product: its care, materials, story and sizes. */}
+<section class="section story" aria-labelledby="story-title">
+	<header class="section-head">
+		<h2 id="story-title" class="title">La prenda</h2>
+	</header>
+	<div class="grid">
+		<article class="card">
+			<p class="eyebrow">{padIndex(1)} · Cuidado</p>
+			<h3>Cómo lavarla</h3>
+			<ul class="list">
+				{care.map((step) => <li>{step}</li>)}
+			</ul>
+		</article>
+		<article class="card">
+			<p class="eyebrow">{padIndex(2)} · Materiales</p>
+			<h3>De dónde viene</h3>
+			<dl class="facts">
+				{materials.map(({ label, value }) => (
+					<div>
+						<dt>{label}</dt>
+						<dd>{value}</dd>
+					</div>
+				))}
+			</dl>
+		</article>
+		<article class="card">
+			<p class="eyebrow">{padIndex(3)} · Historia</p>
+			<h3>Hecha con intención</h3>
+			<p class="text">{history}</p>
+		</article>
+		{sizes.length > 1 && (
+			<article class="card">
+				<p class="eyebrow">{padIndex(4)} · Tallas</p>
+				<h3>Guía de medidas</h3>
+				<table class="sizes">
+					<thead>
+						<tr><th scope="col">Talla</th><th scope="col">Pecho (cm)</th><th scope="col">Largo (cm)</th></tr>
+					</thead>
+					<tbody>
+						{sizes.map(({ size, chest, length }) => (
+							<tr><th scope="row">{size}</th><td>{chest}</td><td>{length}</td></tr>
+						))}
+					</tbody>
+				</table>
+			</article>
+		)}
+	</div>
+</section>
+
+<style>
+	.title {
+		margin: 0;
+		font: 900 clamp(2rem, 4vw, 2.5rem)/0.9 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	.card {
+		display: grid;
+		align-content: start;
+		gap: 1rem;
+		padding: clamp(1.5rem, 4vw, 2.5rem);
+		background: var(--color-surface);
+	}
+
+	h3 {
+		margin: 0;
+		font: 900 clamp(1.75rem, 3vw, 2.25rem)/0.9 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
+	}
+
+	.list,
+	.facts {
+		display: grid;
+		margin: 0;
+		padding: 0;
+		border-top: 1px solid var(--color-line-strong);
+		list-style: none;
+	}
+
+	.list li,
+	.facts div {
+		padding: 0.75rem 0;
+		border-bottom: 1px solid var(--color-line);
+		line-height: 1.5;
+	}
+
+	.facts div {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	dt {
+		color: var(--color-muted);
+	}
+
+	dd {
+		margin: 0;
+		text-align: right;
+	}
+
+	.text {
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.7;
+	}
+
+	.sizes {
+		width: 100%;
+		border-collapse: collapse;
+		text-align: left;
+	}
+
+	.sizes th,
+	.sizes td {
+		padding: 0.7rem 0;
+		border-bottom: 1px solid var(--color-line);
+	}
+
+	.sizes thead th {
+		border-bottom-color: var(--color-line-strong);
+		color: var(--color-muted);
+		font: 700 0.75rem/1 var(--font-body);
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+	}
+
+	.sizes tbody th {
+		font: 700 1rem/1 var(--font-display);
+		letter-spacing: 0.14em;
+	}
+
+	@media (max-width: 760px) {
+		.grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>
