@@ -13,7 +13,7 @@ const { care, materials, history, sizes } = storyOf(Astro.props.product);
 {/* What else there is to know about a product: its care, materials, story and sizes. */}
 <section class="section story" aria-labelledby="story-title">
 	<header class="section-head">
-		<h2 id="story-title" class="title">La prenda</h2>
+		<h2 id="story-title" class="minor-title">La prenda</h2>
 	</header>
 	<div class="grid">
 		<article class="card">
@@ -60,13 +60,6 @@ const { care, materials, history, sizes } = storyOf(Astro.props.product);
 </section>
 
 <style>
-	.title {
-		margin: 0;
-		font: 900 clamp(2rem, 4vw, 2.5rem)/0.9 var(--font-display);
-		font-stretch: condensed;
-		text-transform: uppercase;
-	}
-
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
