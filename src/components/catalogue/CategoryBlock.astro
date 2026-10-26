@@ -35,24 +35,26 @@ const href = `/catalogo/${category.id}`;
 		</ul>
 		<a class="stamp cta" href={href}>Ver {category.name}</a>
 	</div>
-	<CategoryDialog category={category} index={index} />
+	<CategoryDialog category={category} />
 </article>
 
 <script>
-	// A description cut short by its line clamp offers the full one in its
-	// line's dialog. Listening on the document keeps working across client navigations.
+	// A description cut short by its line clamp shows "Leer más"; it, or the
+	// description itself, opens the line's dialog, and a click on the backdrop
+	// closes it. Listening on the document keeps working across client navigations.
 	const mark = () =>
 		document.querySelectorAll<HTMLElement>('[data-description]').forEach((description) => {
-			const clamped = description.scrollHeight > description.clientHeight;
-			description.dataset.clamped = String(clamped);
-			description.parentElement!.querySelector<HTMLElement>('[data-more]')!.hidden = !clamped;
+			description.parentElement!.querySelector<HTMLElement>('[data-more]')!.hidden =
+				description.scrollHeight <= description.clientHeight;
 		});
 	document.addEventListener('astro:page-load', mark);
 	addEventListener('resize', mark);
 
 	document.addEventListener('click', (event) => {
-		const target = (event.target as Element).closest('[data-more], [data-description][data-clamped="true"]');
-		target?.closest('.block')?.querySelector('dialog')?.showModal();
+		const target = event.target as Element;
+		if (target instanceof HTMLDialogElement) return target.close();
+		const body = target.closest('[data-more], [data-description]')?.parentElement;
+		if (body?.querySelector<HTMLElement>('[data-more]')?.hidden === false) body.parentElement!.querySelector('dialog')!.showModal();
 	});
 </script>
 
@@ -68,14 +70,20 @@ const href = `/catalogo/${category.id}`;
 		order: 1;
 	}
 
-	/* The photo keeps its shape and stays in view beside a longer text, rather
-	   than stretching to the text's height and widening over it. */
+	/* The photo keeps its shape rather than stretching to the text's height
+	   and widening over it. */
 	.cover {
-		position: sticky;
-		top: var(--header-height);
 		align-self: start;
 		height: auto;
 		aspect-ratio: 4 / 5;
+	}
+
+	/* Beside a longer text, it stays in view. */
+	@media (min-width: 761px) {
+		.cover {
+			position: sticky;
+			top: var(--header-height);
+		}
 	}
 
 	.number {
@@ -127,7 +135,7 @@ const href = `/catalogo/${category.id}`;
 		line-clamp: 4;
 	}
 
-	.description[data-clamped='true'] {
+	.description:has(+ .more:not([hidden])) {
 		cursor: pointer;
 	}
 
@@ -188,10 +196,6 @@ const href = `/catalogo/${category.id}`;
 
 		.block:nth-of-type(even) .cover {
 			order: 0;
-		}
-
-		.cover {
-			position: relative;
 		}
 	}
 </style>

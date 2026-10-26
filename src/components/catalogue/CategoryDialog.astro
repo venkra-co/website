@@ -1,38 +1,26 @@
 ---
 import type { Category } from '../../data/categories';
-import { formatPrice, padIndex } from '../../lib/format';
-import { markdown } from '../../lib/markdown';
 
 interface Props {
 	category: Category;
-	index: number;
 }
 
-const { category, index } = Astro.props;
+const { category } = Astro.props;
 const titleId = `${category.id}-dialog-title`;
 ---
 
 {/* A line's full description, opened from its block on the catalogue. */}
-<dialog class="dialog" aria-labelledby={titleId} data-dialog>
+<dialog class="dialog" aria-labelledby={titleId}>
 	<img class="photo" src={category.image} alt="" loading="lazy" decoding="async" />
 	<div class="body">
 		<form method="dialog">
 			<button class="stamp icon close" aria-label="Cerrar">✕</button>
 		</form>
-		<p class="eyebrow">Línea {padIndex(index)} · Desde {formatPrice(category.fromPrice)}</p>
 		<h2 id={titleId} class="name">{category.name}</h2>
-		<div class="description" set:html={markdown(category.description)} />
+		<p class="description">{category.description}</p>
 		<a class="stamp cta" href={`/catalogo/${category.id}`}>Ver {category.name}</a>
 	</div>
 </dialog>
-
-<script>
-	// A click on the backdrop, outside the dialog's box, closes it.
-	document.addEventListener('click', (event) => {
-		const target = event.target as Element;
-		if (target.matches('[data-dialog]')) (target as HTMLDialogElement).close();
-	});
-</script>
 
 <style>
 	.dialog {
@@ -86,11 +74,8 @@ const titleId = `${category.id}-dialog-title`;
 	/* Keeps the description's single line breaks, such as its "•" lists. */
 	.description {
 		max-width: 38rem;
+		margin: 0;
 		line-height: 1.6;
-	}
-
-	.description :global(p) {
-		margin: 0 0 1em;
 		white-space: pre-line;
 	}
 
