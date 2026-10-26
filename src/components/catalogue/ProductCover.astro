@@ -3,6 +3,7 @@ import type { Category } from '../../data/categories';
 import type { Product } from '../../data/products';
 import { formatPrice } from '../../lib/format';
 import { orderLink } from '../../lib/whatsapp';
+import ProductGallery from './ProductGallery.astro';
 
 interface Props {
 	product: Product;
@@ -18,7 +19,9 @@ const size = sizes[0];
 ---
 
 <section class="cover" data-cover>
-	<img class="photo" src={product.images[0]} alt={product.name} data-photo />
+	<button class="frame" type="button" aria-label="Ver fotos en grande" data-open-gallery>
+		<img class="photo" src={product.images[0]} alt={product.name} data-photo />
+	</button>
 	<div class="panel cream">
 		<div class="intro">
 			<p class="eyebrow">{category.name}</p>
@@ -69,13 +72,14 @@ const size = sizes[0];
 			</a>
 		</div>
 	</div>
+	<ProductGallery images={product.images} name={product.name} />
 </section>
 
 <script>
 	// Listening on the document once keeps working across client navigations.
 	// Thumbs swap the photo; sizes point the order link at the chosen size.
 	document.addEventListener('click', (event) => {
-		const button = (event.target as Element).closest<HTMLButtonElement>('[data-cover] button');
+		const button = (event.target as Element).closest<HTMLButtonElement>('[data-cover] :is([data-src], [data-size])');
 		const cover = button?.closest<HTMLElement>('[data-cover]');
 		if (!button || !cover) return;
 		const group = button.dataset.src ? 'data-src' : 'data-size';
@@ -94,14 +98,37 @@ const size = sizes[0];
 	.cover {
 		display: grid;
 		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-		min-height: min(52rem, calc(100svh - var(--header-height)));
+	}
+
+	/* Every photo shows in the same 3:2 frame, so switching photos never moves
+	   the page; the gallery shows them whole. */
+	.frame {
+		align-self: start;
+		aspect-ratio: 3 / 2;
+		padding: 0;
+		border: 0;
+		background: var(--color-surface);
+		cursor: zoom-in;
+	}
+
+	/* Beside a longer panel, the photo stays in view. */
+	@media (min-width: 761px) {
+		.frame {
+			position: sticky;
+			top: var(--header-height);
+		}
+	}
+
+	.frame:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: -3px;
 	}
 
 	.photo {
+		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		background: var(--color-surface);
 	}
 
 	.panel {
@@ -222,11 +249,6 @@ const size = sizes[0];
 	@media (max-width: 760px) {
 		.cover {
 			grid-template-columns: 1fr;
-			min-height: 0;
-		}
-
-		.photo {
-			height: 28rem;
 		}
 	}
 </style>
