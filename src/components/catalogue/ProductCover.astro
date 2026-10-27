@@ -145,10 +145,10 @@ const summary = product.details[0];
 	}
 
 	/* Beside the photo, the panel is exactly as tall as it: the photo sets the
-	   row's height and the panel fills it. On narrow tablets the photo can be too
+	   row's height and the panel fills it. Narrower than this the photo can be too
 	   short for the panel, which then runs a little longer. A panel that still
 	   comes out too long scrolls instead of spilling over the page. */
-	@media (min-width: 901px) {
+	@media (min-width: 961px) {
 		.panel {
 			box-sizing: border-box;
 			height: 0;
