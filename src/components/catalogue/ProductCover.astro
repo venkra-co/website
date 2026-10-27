@@ -117,14 +117,23 @@ const summary = product.details[0];
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 
-	/* The photo fills the space beside the panel, as tall as it, so switching
-	   photos never moves the page; the gallery shows them whole. */
+	/* The photo is at least 5:4 and fills the row, so the panel stretches to
+	   match it and it grows to match a longer panel. Its size never depends on
+	   the photo shown, so switching photos never moves the page; the gallery
+	   shows them whole. */
 	.frame {
 		position: relative;
 		padding: 0;
 		border: 0;
 		background: var(--color-surface);
 		cursor: zoom-in;
+	}
+
+	/* Padding in percent follows the width: 80% of it is a 5:4 floor. */
+	.frame::before {
+		content: '';
+		display: block;
+		padding-top: 80%;
 	}
 
 	.frame:focus-visible {
@@ -299,11 +308,6 @@ const summary = product.details[0];
 		.cover,
 		.about {
 			grid-template-columns: 1fr;
-		}
-
-		/* Stacked, the photo has no panel beside it to match. */
-		.frame {
-			aspect-ratio: 5 / 4;
 		}
 
 		.about {
