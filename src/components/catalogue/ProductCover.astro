@@ -16,6 +16,9 @@ const { sizes, colors } = product;
 // One-size products skip the size picker.
 const picker = sizes.length > 1;
 const size = sizes[0];
+// The panel keeps to the photo's height, so it shows only the first detail, on
+// one line; all of them follow below the cover.
+const summary = product.details[0];
 ---
 
 <section class="cover" data-cover>
@@ -27,45 +30,49 @@ const size = sizes[0];
 			<p class="eyebrow">{category.name}</p>
 			<h1 class="name">{product.name}</h1>
 			<p class="price">{formatPrice(product.price)}</p>
-			<ul class="details">
-				{product.details.map((detail) => <li>{detail}</li>)}
-			</ul>
-			{colors.length > 0 && (
-				<ul class="colors" aria-label="Colores">
-					{colors.map((color) => (
-						<li>
-							<span class="swatch" style={`background: ${color.hex}`}></span>
-							{color.name}
-						</li>
-					))}
-				</ul>
-			)}
+			{summary && <p class="summary" title={summary}>{summary}</p>}
 		</div>
 		<div class="order">
-			{product.images.length > 1 && (
-				<div class="thumbs">
-					{product.images.map((src, i) => (
+			{/* The row keeps its space with a single photo, so every panel lines up. */}
+			<div class="thumbs">
+				{product.images.length > 1 &&
+					product.images.map((src, i) => (
 						<button type="button" data-src={src} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`Foto ${i + 1}`}>
 							<img src={src} alt="" loading="lazy" decoding="async" />
 						</button>
 					))}
+			</div>
+			{(picker || colors.length > 0) && (
+				<div class="choices">
+					{picker && (
+						<fieldset class="sizes">
+							<legend class="eyebrow">Talla</legend>
+							{sizes.map((label) => (
+								<button
+									class="stamp"
+									type="button"
+									data-size={label}
+									data-href={orderLink(product, label)}
+									aria-pressed={label === size ? 'true' : 'false'}
+								>
+									{label}
+								</button>
+							))}
+						</fieldset>
+					)}
+					{colors.length > 0 && (
+						<div>
+							<p class="eyebrow">Color</p>
+							<ul class="colors" aria-label="Colores">
+								{colors.map((color) => (
+									<li class="swatch" style={`background: ${color.hex}`} title={color.name}>
+										<span class="hidden-name">{color.name}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 				</div>
-			)}
-			{picker && (
-				<fieldset class="sizes">
-					<legend class="eyebrow">Talla</legend>
-					{sizes.map((label) => (
-						<button
-							class="stamp"
-							type="button"
-							data-size={label}
-							data-href={orderLink(product, label)}
-							aria-pressed={label === size ? 'true' : 'false'}
-						>
-							{label}
-						</button>
-					))}
-				</fieldset>
 			)}
 			<a class="stamp cta" href={orderLink(product, picker ? size : undefined)} target="_blank" rel="noopener" data-cta>
 				{picker ? <span>Pedir talla <span data-label>{size}</span> por WhatsApp</span> : 'Pedir por WhatsApp'}
@@ -74,6 +81,15 @@ const size = sizes[0];
 	</div>
 	<ProductGallery images={product.images} name={product.name} />
 </section>
+
+{product.details.length > 0 && (
+	<section class="about" aria-labelledby="about-title">
+		<h2 id="about-title" class="about-title">Descripción</h2>
+		<ul class="details">
+			{product.details.map((detail) => <li>{detail}</li>)}
+		</ul>
+	</section>
+)}
 
 <script>
 	// Listening on the document once keeps working across client navigations.
@@ -97,26 +113,26 @@ const size = sizes[0];
 <style>
 	.cover {
 		display: grid;
-		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 
-	/* Every photo shows in the same 3:2 frame, so switching photos never moves
-	   the page; the gallery shows them whole. */
+	/* The photo is at least 5:4 and fills the row, so the panel stretches to
+	   match it and it grows to match a longer panel. Its size never depends on
+	   the photo shown, so switching photos never moves the page; the gallery
+	   shows them whole. */
 	.frame {
-		align-self: start;
-		aspect-ratio: 3 / 2;
+		position: relative;
 		padding: 0;
 		border: 0;
 		background: var(--color-surface);
 		cursor: zoom-in;
 	}
 
-	/* Beside a longer panel, the photo stays in view. */
-	@media (min-width: 761px) {
-		.frame {
-			position: sticky;
-			top: var(--header-height);
-		}
+	/* Padding in percent follows the width: 80% of it is a 5:4 floor. */
+	.frame::before {
+		content: '';
+		display: block;
+		padding-top: 80%;
 	}
 
 	.frame:focus-visible {
@@ -125,7 +141,8 @@ const size = sizes[0];
 	}
 
 	.photo {
-		display: block;
+		position: absolute;
+		inset: 0;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
@@ -134,26 +151,55 @@ const size = sizes[0];
 	.panel {
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
-		gap: 2.5rem;
+		gap: 1.25rem;
 		padding: clamp(1.5rem, 4vw, 3rem);
 	}
 
 	.intro {
 		display: grid;
-		gap: 1.25rem;
+		gap: 0.75rem;
 	}
 
 	.name {
 		margin: 0;
-		font: 900 clamp(3rem, 7vw, 6.5rem)/0.82 var(--font-display);
+		font: 900 clamp(2.25rem, 3.6vw, 3.75rem)/0.88 var(--font-display);
 		font-stretch: condensed;
 		text-transform: uppercase;
 	}
 
 	.price {
 		margin: 0;
-		font-size: 1.75rem;
+		font-size: 1.5rem;
+	}
+
+	.summary {
+		margin: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		opacity: 0.85;
+	}
+
+	.order {
+		display: grid;
+		gap: 0.85rem;
+		margin-top: auto;
+	}
+
+	.about {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+		gap: 2rem;
+		max-width: var(--page-max);
+		margin: 0 auto;
+		padding: 3rem var(--page-gutter) 0;
+	}
+
+	.about-title {
+		margin: 0;
+		font: 900 clamp(2rem, 4vw, 2.5rem)/0.9 var(--font-display);
+		font-stretch: condensed;
+		text-transform: uppercase;
 	}
 
 	.details {
@@ -165,38 +211,43 @@ const size = sizes[0];
 	.colors {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem 1.25rem;
+		gap: 0.5rem;
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
-	.colors li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
+	/* A colour is a plain square shaped like a size; its name is for screen
+	   readers and shows on hover. */
 	.swatch {
-		width: 1.1rem;
-		height: 1.1rem;
+		box-sizing: border-box;
+		width: var(--choice-width);
+		height: var(--choice-height);
 		border: 1px solid var(--color-line-strong);
 	}
 
-	.order {
-		display: grid;
-		gap: 1rem;
+	.hidden-name {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 
 	.thumbs {
+		--thumb-width: 3.5rem;
 		display: flex;
 		gap: 0.5rem;
+		/* A thumb's height: its 4:5 photo inside a 2px border. */
+		min-height: calc((var(--thumb-width) - 4px) * 5 / 4 + 4px);
 		overflow-x: auto;
 	}
 
 	.thumbs button {
 		flex: none;
-		width: 3.75rem;
+		box-sizing: border-box;
+		width: var(--thumb-width);
 		padding: 0;
 		border: 2px solid transparent;
 		background: none;
@@ -210,29 +261,46 @@ const size = sizes[0];
 		object-fit: cover;
 	}
 
+	@media (min-width: 761px) {
+		.thumbs {
+			--thumb-width: 4.75rem;
+		}
+	}
+
 	.thumbs [aria-pressed='true'] {
 		border-color: var(--color-fg);
 	}
 
-	.sizes {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 0.5rem;
-		margin: 0;
-		padding: 1rem 0 0;
-		border: 0;
+	/* Sizes and colours side by side, wrapping when the panel is narrow. */
+	.choices {
+		--choice-width: 3.25rem;
+		--choice-height: 2.75rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 2.5rem;
+		padding-top: 1rem;
 		border-top: 1px solid var(--color-line);
 	}
 
-	.sizes legend {
-		float: left;
-		grid-column: 1 / -1;
-		margin-bottom: 0.5rem;
+	.choices .eyebrow {
+		margin: 0 0 0.5rem;
+		padding: 0;
+	}
+
+	.sizes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
 	}
 
 	.sizes .stamp {
 		justify-content: center;
-		--stamp-size: 3rem;
+		width: var(--choice-width);
+		padding: 0;
+		--stamp-size: var(--choice-height);
 	}
 
 	.sizes [aria-pressed='true'] {
@@ -247,8 +315,18 @@ const size = sizes[0];
 	}
 
 	@media (max-width: 760px) {
-		.cover {
+		.cover,
+		.about {
 			grid-template-columns: 1fr;
+		}
+
+		.about {
+			gap: 1rem;
+		}
+
+		/* Stacked, nothing sits beside the panel to line up with. */
+		.thumbs:not(:has(button)) {
+			display: none;
 		}
 	}
 </style>
