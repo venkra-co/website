@@ -3,6 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../../components/catalogue/Breadcrumbs.astro';
 import ProductCover from '../../../components/catalogue/ProductCover.astro';
 import ProductRow from '../../../components/catalogue/ProductRow.astro';
+import ProductStory from '../../../components/catalogue/ProductStory.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
 import { products, type Product } from '../../../data/products';
 import { cardUrl } from '../../../lib/og';
@@ -37,10 +38,11 @@ const more = category.products.filter((other) => other.id !== product.id).slice(
 			<Breadcrumbs items={crumbs} />
 		</div>
 		<ProductCover product={product} category={category} />
+		<ProductStory product={product} />
 		{more.length > 0 && (
 			<section class="section" aria-labelledby="more-title">
 				<header class="section-head">
-					<h2 id="more-title" class="more-title">Más de {category.name}</h2>
+					<h2 id="more-title" class="minor-title">Más de {category.name}</h2>
 					<a class="eyebrow" href={`/catalogo/${category.id}`}>Ver todo</a>
 				</header>
 				<ProductRow products={more} />
@@ -56,13 +58,6 @@ const more = category.products.filter((other) => other.id !== product.id).slice(
 
 	.crumbs {
 		padding: 1rem var(--page-gutter);
-	}
-
-	.more-title {
-		margin: 0;
-		font: 900 clamp(2rem, 4vw, 2.5rem)/0.9 var(--font-display);
-		font-stretch: condensed;
-		text-transform: uppercase;
 	}
 
 	.eyebrow {
